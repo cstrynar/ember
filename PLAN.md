@@ -1,20 +1,21 @@
-# Ember — Personal Health Coach — Build Plan (v1)
+# Ember → Personal Health Coach — Build Plan (v1)
 
 > Status: **implemented (P0–P6).** All phases below are built on this branch and the
 > decisions in §11 are locked. `EmberCore` is unit-tested; the SwiftUI app is pending its
 > first Mac compile. This doc is kept as the design record — edit it as the app evolves.
 
-## 0. Design posture, honestly
+## 0. What's changing, honestly
 
-Ember is a **local-first, bring-your-own-key** health coach. The defining constraints:
+Ember today is a *local-only, no-AI, no-network* self-care scaffold. This pivot
+**intentionally reverses three of its founding non-goals**:
 
-| Concern | Decision |
+| Old contract (SAFETY.md) | New reality |
 | --- | --- |
-| AI surface | A chat coach powered by the Claude API |
-| Network | Outbound HTTPS to `api.anthropic.com` only (chat + web search) |
-| Accounts | None — an Anthropic **API key** lives in the Keychain |
+| No AI surface of any kind | A chat coach powered by the Claude API |
+| No backend, no network | Outbound HTTPS to `api.anthropic.com` (chat + web search) |
+| No accounts | Still no accounts — but an Anthropic **API key** lives in the Keychain |
 
-What this buys, and what it deliberately preserves:
+What we **keep** (the genuinely good parts that carry over):
 
 - **Local-first data.** All health data stays in on-device JSON files. Only the
   text of a chat turn plus the specific data the coach looks up is sent to the API.
@@ -23,9 +24,13 @@ What this buys, and what it deliberately preserves:
   This is the single most important thing to preserve, because it's what lets your
   friend extend the app with `swift test` and no Xcode.
 
-**Out of scope by decision:** anything clinical. The only safety text is a single,
-plain "general fitness info — not medical advice" line in the coach's system prompt
-and Settings.
+**Dropped entirely** (per decision): the self-care identity. No crisis footer, no
+no-guilt tone enforcement / nag denylist, no human-contact nudge, no self-care
+checklist. This is just a health-coach app.
+
+**Action:** SAFETY.md (the self-care contract) is **removed**. The only safety text
+that remains is a single, plain "general fitness info — not medical advice" line in
+the coach's system prompt and Settings.
 
 ## 1. Locked decisions (from our Q&A)
 
@@ -52,7 +57,7 @@ App/Ember (SwiftUI + side effects)
 ├─ Persistence/ FileHealthStore (JSON in ApplicationSupport/Ember/)
 ├─ Services/    NotificationService, AnthropicClient, CoachAgent, KeychainStore
 ├─ ViewModels/  one per tab
-└─ Views/       Coach, Food, Train, Settings
+└─ Views/       Coach, Food, Train, Settings + crisis footer
 ```
 
 **Principle:** anything that can be a pure function lives in `EmberCore` with tests.
@@ -151,6 +156,7 @@ Replace the current Today/Log tabs with:
 
 Quick-add and chat-logging both write the same `FoodEntry`, so "save a new item for
 lookup" is just: log something not in the DB → offer to save it as a custom `FoodItem`.
+No crisis footer, no persistent safety banner.
 
 ## 8. Preloaded food database
 
@@ -161,10 +167,11 @@ explicitly **out of scope for v1** — noted as a future seam.)
 
 ## 9. Phasing (each phase keeps `swift test` green and the app buildable)
 
-- **P0 — Scaffolding.** Stand up the reusable bones: `DayKey`, the JSON store pattern,
-  `NotificationService`, the app shell, icon, `project.yml`. Set up CLAUDE.md/README.
-  Info.plist needs no ATS exception (HTTPS to Anthropic) and basic Keychain needs no
-  entitlement.
+- **P0 — Teardown & scaffolding.** Remove the self-care app (checklist, day log,
+  human-contact nudge, crisis footer, nag denylist, SAFETY.md). Keep & generalize the
+  reusable bones: `DayKey`, the JSON store pattern, `NotificationService`, the app
+  shell, icon, `project.yml`. Update CLAUDE.md/README. Info.plist needs no ATS
+  exception (HTTPS to Anthropic) and basic Keychain needs no entitlement.
 - **P1 — Nutrition core (EmberCore).** Models + `MacroMath` + `NutritionLogic` +
   `FoodDatabase` + tests + bundled food JSON.
 - **P2 — Nutrition UI.** Profile/goal onboarding, Food tab, quick-add, hydration,
@@ -191,9 +198,10 @@ explicitly **out of scope for v1** — noted as a future seam.)
 
 ## 11. Locked decisions
 
-1. **Scope is purely a health coach** — reminder/notification plumbing drives meals &
-   hydration; nothing clinical. A full restart of any module is fine where it's cleaner
-   than adapting.
+1. **Self-care features retired** — checklist, day log, human-contact nudge all removed.
+   Reminder/notification plumbing is reused for meals & hydration. The warm tone and
+   crisis footer are **dropped too**; this is purely a health-coach app. A full restart
+   of any module is fine where it's cleaner than adapting.
 2. **Food DB:** ~150 curated common foods for v1; barcode/USDA later.
 3. **Name stays "Ember."**
 4. **Weekly review:** in-app advisory report, shipping in this update.
@@ -201,7 +209,8 @@ explicitly **out of scope for v1** — noted as a future seam.)
 
 ## 12. Git history
 
-History is collapsed into a clean initial commit (orphan root) before handoff, so the
-repo ships with a single, tidy starting point. This is a **destructive, force-pushed**
-rewrite — it happens once at the very end, with explicit confirmation before the
-force-push. Until then, work stays local and nothing is pushed.
+Once the codebase actually *is* the health coach, the entire history is collapsed into
+a clean initial commit (orphan root) so the published/private repo shows no self-care
+origins. This is a **destructive, force-pushed** rewrite — it happens at the very end,
+with explicit confirmation before the force-push. Until then, work stays local and
+nothing is pushed.

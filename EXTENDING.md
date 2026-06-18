@@ -52,7 +52,8 @@ Sources/EmberCore/
 App/Ember/
   ViewModels/    AppModel (shared @MainActor state), ChatStore (owns the coach conversation)
   Persistence/   FileHealthStore (local JSON in Application Support)
-  Services/      NotificationService, KeychainStore, AnthropicClient, CoachTools, CoachAgent
+  Services/      NotificationService, KeychainStore, AnthropicClient, CoachTools, CoachAgent,
+                 HealthService (HealthAccess seam — read-only Apple Health)
   Views/         RootView + Food / Train / Coach / Settings screens and components
 Tools/           gen_foods.py (regenerates the food DB)
 ```
@@ -136,6 +137,22 @@ plain JSON keyed by `DayKey` where it's per-day.
 **Change reminders.** Defaults live in `ReminderSettings.default`. Scheduling is in
 `NotificationService.sync` (repeating daily local notifications). The coach can edit
 times via the `set_reminder` tool.
+
+**Read from Apple Health.** `App/Ember/Services/HealthService.swift` is the only HealthKit
+importer: a `HealthAccess` protocol (no HealthKit types in its signature) with a real
+`HealthKitAccess` and a `NoopHealthAccess` (previews / non-iOS). `AppModel` injects it
+(`init(... health:)`) and exposes `isHealthDataAvailable` + `requestHealthAccess()`; the
+Settings "Apple Health" control requests read authorization. This is the injection seam to
+extend when adding Health *reads* (prefer-Health-else-manual) — add read methods to
+`HealthAccess` and a query body to `HealthKitAccess`, keeping EmberCore HealthKit-free.
+The read methods return EmberCore value types (`HealthWeightSample`/`HealthWorkout` in
+`Sources/EmberCore/Models/HealthSamples.swift`), and the pure prefer-Health-else-manual
+decision lives in `HealthMerge` (`Sources/EmberCore/Logic/HealthMerge.swift`):
+`currentWeightKg(health:manual:)` (most-recent Health body mass else manual) and
+`mergedWorkouts(manual:health:) -> MergedWorkoutHistory` (manual passed through unchanged for
+the per-exercise charts, plus a deduped, newest-first Health summary). `AppModel.refreshHealthData()`
+caches the samples (`healthWeights`/`healthWorkouts`) on foreground / after grant; `currentWeightKg`
+and `workoutHistory` surface the merged result. Health never feeds `MacroMath`.
 
 ## Privacy model (please keep)
 

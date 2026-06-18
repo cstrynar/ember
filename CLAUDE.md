@@ -28,7 +28,10 @@ analytics. The coach gives general fitness info, not medical advice.
   foods/exercises, friction log, coach reports, reminders, coach memory). Util: `DayKey`.
 - `App/Ember/` — SwiftUI + side effects. `EmberApp.swift` (@main, scenePhase rollover),
   `ViewModels/{AppModel,ChatStore}.swift`, `Persistence/FileHealthStore.swift`,
-  `Services/{NotificationService,KeychainStore,AnthropicClient,CoachTools,CoachAgent}.swift`.
+  `Services/{NotificationService,KeychainStore,AnthropicClient,AnthropicImage,CoachTools,CoachAgent}.swift`.
+  `AnthropicImage.swift` (UIKit) builds the vision image content block + downscales/JPEG-encodes
+  a `UIImage` to base64 (`VisionImage`); `AnthropicClient.sendVision` posts photo+text via the
+  shared `post` path.
   Views: `RootView`, `FoodView`, `QuickAddView`, `ProfileView`, `SettingsView`,
   `ReminderSettingsView`, `TrainView`, `ProgressViews`, `CoachView`, `CoachSettingsView`,
   shared `Components`/`Formatting`.
@@ -62,9 +65,43 @@ cd App && xcodegen generate && open Ember.xcodeproj
 - Bundle id: `com.nimmynurner.ember`.
 
 ## Known issues / current state
-- v1 core complete: P0–P5 (scaffolding, nutrition core, nutrition UI, workouts, coach agent,
-  friction log + weekly review via Coach Notes). v1-polish roadmap is an 8-stage pass
-  (see `runs/20260618-0204-ember-v1-polish/ROADMAP.md`).
+- Mid-pivot from a prior self-care app. Done: P0–P5 (teardown, nutrition core, nutrition UI,
+  workouts, coach agent, friction log + weekly review via Coach Notes). v1-polish roadmap is
+  an 8-stage pass (see `runs/20260618-0204-ember-v1-polish/ROADMAP.md`).
+- **Photo-macros roadmap (4 stages, `runs/20260618-1514-ember-photo-macros/`):** add
+  "estimate macros from a food photo" via Claude vision. Stage 1 = client image plumbing
+  (done, below); Stage 2 = pure-`EmberCore` response parser + fixtures (done, below);
+  Stage 3 = capture/UI + log via `AppModel`/`FoodEntry`; Stage 4 = on-device verify.
+- **Photo-macros Stage 1 (image content-block plumbing) done:** new
+  `App/Ember/Services/AnthropicImage.swift` — `VisionImage { base64; mediaType }`, a pure
+  `imageContentBlock(_:)` emitting `{"type":"image","source":{"type":"base64",
+  "media_type":...,"data":...}}` over the existing `[String: Any]` block shape, and
+  `encodeForVision(_ image: UIImage) -> VisionImage?` (first UIKit import) that downscales the
+  longest edge to ≤ 1568 px, JPEG-encodes from quality 0.7 stepping down toward 0.3 if over a
+  ~4.5 MB budget, base64s, and reports `media_type: image/jpeg`. `AnthropicClient` gains an
+  additive `sendVision(systemPrompt:userText:image:model:)` (default `claude-sonnet-4-6`, no
+  tools) that posts one user message `content:[imageBlock, textBlock]`; `send`'s HTTP/decode
+  body was factored into a behavior-preserving private `post(body:)` shared by both paths (same
+  endpoint, headers, `max_tokens` 1500, `CoachError` map, `AnthropicResponse` decode). The
+  `CoachBackend` protocol, `CoachAgent`, `ChatStore`, `send`'s signature, and `project.yml` are
+  untouched; `EmberCore` untouched; no new network egress. `sendVision` has no caller yet (the
+  Stage-3 seam) and returns raw `assistantText`.
+- **Photo-macros Stage 2 (pure vision-response parser) done:** new
+  `Sources/EmberCore/Logic/PhotoMacroParser.swift` — pure, `Foundation`-only. Public types:
+  `EstimatedFoodItem { name; serving; macros: Macros }` (+ `asFoodItem(id:source:)` mapping
+  `macros → macrosPerServing`, `serving → servingDescription` — the Stage-3 seam),
+  `EstimateUncertainty` (`low/medium/high/unknown`, `init(rawString:)` → `.unknown` fallback),
+  `PhotoMacroResult { items; assumptions; uncertainty }`, `PhotoMacroParseError`
+  (`.notJSON/.malformed/.noItems`), and `PhotoMacroEstimate` (`.success/.failure`).
+  `PhotoMacroParser.parse(_ assistantText:) -> PhotoMacroEstimate` (enum namespace, mirrors
+  `MacroMath`) extracts the first balanced `{…}` object via a string-literal-aware brace scan
+  (handles prose / ```json fences), decodes a private alias-tolerant `Decodable` DTO
+  (`WireItem`/`WireResponse`: `kcal`, `protein`/`carb`/`carbs`/`fat`, `note`/`notes` aliases;
+  missing macros → 0), drops nameless items, clamps macros `>= 0`, and returns a typed
+  failure (never throws/crashes). Fixture-covered by `Tests/EmberCoreTests/PhotoMacroParserTests.swift`
+  (inline `"""…"""` JSON: multi-item w/ prose+fence, single-item w/ aliases, malformed/garbage,
+  uncertainty fallback, `asFoodItem`). Two new files; no App/`Package.swift`/`project.yml`
+  change; no caller yet (Stage 3 feeds `assistantText` in).
 - **Stage 1 (food one-tap re-log) done:** `RecentFood` snapshots `lastServings`/`lastMeal`;
   `AppModel.reLog`/`recent(forID:)`/`QuickAddEntry`; FoodView strip + QuickAddView
   Favorites/Recent rows one-tap re-log at prior servings+meal; LogFoodView prefills via
@@ -122,6 +159,107 @@ cd App && xcodegen generate && open Ember.xcodeproj
   conversation?" dialog; the `ProfileView` "Target weight" (kg) row), then pooling **all**
   findings into one consolidated revise list. The batched revise fixes land *after* this gate;
   the git-history squash (PLAN.md §12) is the only manual step left after that.
+- **Coach keyboard-dismiss fix done** (`runs/20260618-2003-coach-keyboard-dismiss`):
+  `CoachView` got a `@FocusState private var inputFocused` bound to the input `TextField`
+  (`.focused($inputFocused)`), `.scrollDismissesKeyboard(.interactively)` on the conversation
+  `ScrollView`, and a keyboard accessory `.toolbar { ToolbarItemGroup(placement: .keyboard) {
+  Spacer(); Button("Done") { inputFocused = false } } }` on `chatBody` — so the keyboard no
+  longer traps the user over the bottom tab bar. All iOS-16-safe; `CoachView.swift`-only; send/
+  thinking/error/auto-scroll/clear-conversation untouched.
+- **HealthKit Stage 1 (auth plumbing) done** (`runs/20260618-1508-ember-healthkit`): first of
+  a 4-stage HealthKit roadmap. Reads NO Health data yet (stage 2) and adds NO coach tool
+  (stage 3). `App/project.yml` declares the `com.apple.developer.healthkit` entitlement (generated
+  to git-ignored `Ember/Ember.entitlements`) + `NSHealthShareUsageDescription` (read-only; no
+  write/update entitlement or string). New `App/Ember/Services/HealthService.swift` is the **only**
+  HealthKit importer: `HealthAccess` protocol (no HealthKit types in its signature) + real
+  `HealthKitAccess` (requests read auth for the six v1 types — workouts, body mass, active energy,
+  step count, resting HR, sleep — via `HKHealthStore.requestAuthorization(toShare: [], read:)`,
+  swallowing all errors to a no-op) + `NoopHealthAccess` (previews / non-iOS). `AppModel` injects it
+  (`init(... health: HealthAccess = HealthKitAccess())`) and exposes `isHealthDataAvailable` +
+  fire-and-forget `requestHealthAccess()`; NOT auto-invoked from init/onForeground. `SettingsView`
+  gains a `Section("Apple Health")` "Connect Apple Health" button (gated on `isHealthDataAvailable`)
+  that calls it. No-op-on-deny guarantee: granting/denying/no-data never blocks or errors any manual
+  flow. EmberCore imports no HealthKit; `swift test` stays green. No new network egress.
+- **HealthKit Stage 2 (primary-with-fallback for weight + workouts) done** (`runs/20260618-1508-ember-healthkit`):
+  Apple Health becomes the **primary** source for body weight + workouts, with manual entry as a
+  byte-for-byte fallback. Pure EmberCore: new `Sources/EmberCore/Models/HealthSamples.swift`
+  (`HealthWeightSample { date; weightKg }`, `HealthWorkout { id; dayKey; date; kind; durationMin;
+  activeEnergyKcal? }` — additive summary, NOT synthetic sets) + `Sources/EmberCore/Logic/HealthMerge.swift`
+  (`enum HealthMerge.currentWeightKg(health:manual:)` = most-recent Health body mass else manual;
+  `mergedWorkouts(manual:health:) -> MergedWorkoutHistory { manual; health }` = manual passed through
+  unchanged + Health deduped-by-`id`, newest-first), unit-tested in `Tests/EmberCoreTests/HealthMergeTests.swift`.
+  App: `HealthAccess` gains two read methods returning EmberCore value types (no HealthKit in signature) —
+  `recentBodyMass(daysBack:completion:)`/`recentWorkouts(daysBack:completion:)`; `HealthKitAccess` maps them
+  via `HKSampleQuery` (`.bodyMass`→kg, `HKWorkout`→summary, `uuid`→id, `DayKey.key(for:startDate)`→dayKey,
+  errors/empty→`[]`), `NoopHealthAccess`→`[]`. `AppModel` caches `healthWeights`/`healthWorkouts`
+  (`@Published private(set)`), `refreshHealthData()` (180-day window) called from `onForeground()` + after
+  `requestHealthAccess`, and exposes `currentWeightKg`/`workoutHistory`. Coach-context weight prefers Health
+  (`CoachAgent.systemPrompt` + `CoachTools.getToday`'s profile `weight_kg` use `currentWeightKg ?? profile.weightKg`,
+  + a `weight_source` hint). `TrainView` gains a read-only `Section("From Apple Health")`
+  (`HealthWorkoutRow`) when `workoutHistory.health` is non-empty. Invariants: manual logging + `MacroMath`
+  BMR/TDEE/goal untouched (Health never feeds macros); food/macros/hydration untouched; `WorkoutProgress` +
+  its tests byte-for-byte unchanged (charts read only manual `[Workout]`); EmberCore imports no HealthKit;
+  no new coach tool (that's Stage 3); no new network egress.
+- **Photo-macros UI Stage 1 (entry point + estimate seam) done** (`runs/20260618-1700-ember-photo-macros-ui`):
+  wires the capture entry point + `AppModel.estimateMacros` async seam on top of the already-shipped
+  plumbing (`AnthropicImage` encode/block, `AnthropicClient.sendVision`, pure `PhotoMacroParser`).
+  `App/project.yml` adds `NSCameraUsageDescription` (camera path only; `PhotosPicker` needs no
+  `NSPhotoLibraryUsageDescription`). `AppModel` gains `import UIKit`, two prompt constants
+  (`photoEstimateSystemPrompt`/`photoEstimateUserText` eliciting the parser's JSON contract), the
+  `@MainActor async estimateMacros(from:systemPrompt:userText:) -> PhotoMacroOutcome` seam (key guard
+  `.noKey` → `encodeForVision` `.encodeFailed` → `sendVision` throw → `.requestFailed` →
+  `PhotoMacroParser.parse` `.success`/`.parseFailed`; builds `AnthropicClient(apiKey:)` like
+  `generateWeeklyReview`), and the App-layer enum `PhotoMacroOutcome`
+  (`success/noKey/encodeFailed/parseFailed/requestFailed`). New `App/Ember/Views/CameraPicker.swift`
+  (second App-layer UIKit import) is a minimal `UIViewControllerRepresentable` over
+  `UIImagePickerController` (`.camera`) returning `.originalImage`. New
+  `App/Ember/Views/PhotoEstimateView.swift` is the idle→loading→review→failure phase machine: idle
+  shows a library `PhotosPicker` + a camera button gated on `isSourceTypeAvailable(.camera)` (no-key
+  state mirrors `CoachView.noKey`), review renders parsed items **read-only** (name/serving/
+  `P/C/F · kcal`) + assumptions/uncertainty, failure shows a message + "Try another photo".
+  `QuickAddView` adds an "Estimate from photo" `NavigationLink` next to "Add a custom food".
+  Review was read-only this stage (Stage 2 makes it editable/loggable). EmberCore/tests untouched.
+- **Photo-macros UI Stage 2 (editable, confirm-to-log review) done** (`runs/20260618-1700-ember-photo-macros-ui`):
+  turns `PhotoEstimateView`'s review phase into a fully editable, user-confirmed list. New private
+  App-layer `EditableEstimateRow` (an `Identifiable` `UUID` mirror of `EstimatedFoodItem`:
+  `name`/`serving` + four macro `String`s + `servings: Double`; `macros`/`contribution =
+  macros.scaled(by: servings)`/`hasName`), seeded from the parsed result in `estimate(_:)`. The
+  `review` body renders `ForEach($rows)` editable rows (name + serving + four decimal-pad macro
+  fields via a copied `ManualFoodView` `macroField`, + a per-item `0.5…20` `Stepper`) with
+  `.onDelete` swipe-to-delete; a `Notes` section (assumptions + a "Confidence" row —
+  `uncertaintyLabel(.unknown)` now returns "Unknown" so all four states show); a segmented `Meal`
+  picker (one meal for the plate, seeded `Meal.suggestedForNow()`); a "This adds" live
+  `MacroSummaryView(consumed: liveTotal, goal: nil)` (`liveTotal = rows.reduce(.zero){ $0 +
+  $1.contribution }`); and a `Log N item(s)` button (`canConfirm` = non-empty AND every row named)
+  beside "Try another photo". `confirm()` logs each row via the EXISTING
+  `app.logManual(name:macros:servings:meal:saveToLibrary:false)` path — same `FoodEntry` as manual
+  entry, no parallel logging — then `onDone()` (dismiss). New `onDone: () -> Void = {}` seam threaded
+  from `QuickAddView` (`PhotoEstimateView(onDone: { dismiss() })`). App-layer SwiftUI only, iOS-16-safe;
+  `idle`/`loading`/`failure`, `PhotosPicker`/`CameraPicker`, no-key state, and `AppModel.estimateMacros`
+  unchanged; EmberCore/tests/`project.yml`/`Package.swift` untouched; only network egress is the
+  existing `sendVision` call (no new call sites).
+- **Photo-macros UI Stage 3 (on-device verification gate) — CURRENT STATE** (`runs/20260618-1700-ember-photo-macros-ui`):
+  final human verification gate for the capture → estimate → editable-review → confirm-log loop
+  (camera + library). **No app code** — stages 1–2 shipped the whole feature. Deliverable is a
+  single process checklist, `runs/20260618-1700-ember-photo-macros-ui/TEST-PASS.md` (kept in the
+  run dir, NOT the shippable tree — same convention as the per-stage `PLAN-*.md` and the v1-polish
+  `TEST-PASS.md`), walking Nimmy on a Mac + **physical iPhone** (camera + a real photo library
+  need a device, not the simulator) through `swift test` (Step A — EmberCore untouched, names
+  `PhotoMacroParserTests`) → `cd App && xcodegen generate` + Xcode device build/launch (Step B —
+  first-compile caveat; `NSCameraUsageDescription`-in-`Info.plist` sub-check) → six per-criterion
+  manual scripts (Step C) with all UI strings quoted verbatim against the shipped source
+  (`PhotoEstimateView`'s "Estimate macros from a photo"/"Choose a photo"/"Take a photo"/
+  "Estimating…"/"Estimated items"/"Confidence"/"Log N item(s)"/"Try another photo" + the no-key
+  "Add your Anthropic API key"/"In Settings → Coach…" copy + the four failure messages;
+  `QuickAddView`'s "Estimate from photo" entry; `FoodView`'s per-meal `Section(meal.title)`;
+  `project.yml`'s `NSCameraUsageDescription` text): C.1 camera+library both reach an estimate,
+  C.2 editable review (assumptions/uncertainty/all fields/swipe-delete/live "This adds" total),
+  C.3 confirm logs via the existing `logManual` path into the Food tab's per-meal section while
+  backing out logs nothing, C.4 camera gating + the `NSCameraUsageDescription` prompt (graceful
+  library-only on a simulator), C.5 no-key state AND a blank-photo failure both surface clear
+  non-crashing messages, C.6 the single Consolidated-revise-list instruction. Batched revise
+  fixes land *after* this gate; the git-history squash (PLAN.md §12) is the only manual step left
+  after that. Checklist-only — no `Sources/`/`Tests/`/`App/`/`Package.swift`/`project.yml` change.
 - Swift toolchain not installed on this host — `swift build`/`swift test` are NOT run here;
   all Swift is written carefully but compile-unverified until a macOS/Linux Swift 5.9+ host.
 - Git history will be collapsed into a clean initial commit before handoff (see PLAN.md §12).
