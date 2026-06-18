@@ -5,6 +5,7 @@ struct CoachView: View {
     @EnvironmentObject var app: AppModel
     @StateObject private var chat = ChatStore()
     @State private var showingClearConfirm = false
+    @FocusState private var inputFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -75,6 +76,7 @@ struct CoachView: View {
                 .onChange(of: chat.isThinking) { _ in
                     withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
 
             if let error = chat.errorText {
@@ -85,6 +87,12 @@ struct CoachView: View {
 
             inputBar
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { inputFocused = false }
+            }
+        }
     }
 
     private var inputBar: some View {
@@ -93,6 +101,7 @@ struct CoachView: View {
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...4)
                 .disabled(chat.isThinking)
+                .focused($inputFocused)
             Button {
                 Task { await chat.send(app: app) }
             } label: {

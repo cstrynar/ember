@@ -48,6 +48,14 @@ struct TrainView: View {
                     }
                 }
 
+                if !model.workoutHistory.health.isEmpty {
+                    Section("From Apple Health") {
+                        ForEach(model.workoutHistory.health) { workout in
+                            HealthWorkoutRow(workout: workout)
+                        }
+                    }
+                }
+
                 Section {
                     NavigationLink {
                         ProgressOverviewView().environmentObject(model)
@@ -128,6 +136,34 @@ struct SetRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+}
+
+/// A read-only Apple-Health-sourced workout summary (device data — no edit/delete).
+struct HealthWorkoutRow: View {
+    let workout: HealthWorkout
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .none
+        return f
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(workout.kind)
+            Text(caption)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var caption: String {
+        var parts = ["\(Self.dateFormatter.string(from: workout.date))",
+                     "\(whole(workout.durationMin)) min"]
+        if let kcal = workout.activeEnergyKcal { parts.append("\(whole(kcal)) kcal") }
+        return parts.joined(separator: " · ")
     }
 }
 

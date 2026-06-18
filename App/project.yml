@@ -26,7 +26,7 @@ targets:
         # Marketing version (1.0). Bump CFBundleVersion for every TestFlight upload —
         # App Store Connect rejects a build number it has already seen.
         CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "4"
+        CFBundleVersion: "5"
         LSRequiresIPhoneOS: true
         # Without a launch screen, iOS runs the app in scaled-down compatibility
         # mode (letterboxed with black bars). An empty UILaunchScreen opts into
@@ -37,6 +37,14 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSUserNotificationsUsageDescription: "Ember sends optional reminders for meals and hydration at times you choose. The app is fully usable without them."
+        NSHealthShareUsageDescription: "Ember can read your workouts and body weight (and steps, active energy, resting heart rate, and sleep) from Apple Health so your coach and progress reflect real data. Reading is optional — deny it and Ember works fully on data you enter manually. Ember never writes to Health."
+    # NOTE: xcodegen *generates* Ember/Ember.entitlements from the block below on every
+    # `xcodegen generate`. Like Ember.xcodeproj it is a build artifact — git-ignored, never
+    # hand-edited or committed. Add entitlement keys HERE.
+    entitlements:
+      path: Ember/Ember.entitlements
+      properties:
+        com.apple.developer.healthkit: true
     dependencies:
       - package: EmberCore
     settings:

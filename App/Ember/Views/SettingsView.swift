@@ -32,6 +32,17 @@ struct SettingsView: View {
                     }
                 }
 
+                if model.isHealthDataAvailable {
+                    Section("Apple Health") {
+                        Button { model.requestHealthAccess() } label: {
+                            Label("Connect Apple Health", systemImage: "heart.text.square")
+                        }
+                        Text("Let Ember read your workouts and weight (and steps, energy, resting heart rate, sleep) from Health. Optional — Ember works fully on manual entry if you decline. Ember never writes to Health.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("Coach") {
                     NavigationLink {
                         CoachSettingsView().environmentObject(model)

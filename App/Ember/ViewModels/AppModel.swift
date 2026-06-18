@@ -19,6 +19,10 @@ final class AppModel: ObservableObject {
     @Published private(set) var recents: [RecentFood] = []
     @Published private(set) var todayWorkout: Workout
     @Published private(set) var allWorkouts: [Workout]
+    /// Recent Apple Health body-mass samples (empty when denied / no data / unavailable).
+    @Published private(set) var healthWeights: [HealthWeightSample] = []
+    /// Recent Apple Health workout summaries (empty when denied / no data / unavailable).
+    @Published private(set) var healthWorkouts: [HealthWorkout] = []
     /// Recently-trained exercises (newest first), derived from workout history for quick-add.
     @Published private(set) var recentExercises: [RecentExercise] = []
     @Published private(set) var customExercises: [Exercise]
@@ -31,13 +35,17 @@ final class AppModel: ObservableObject {
     // MARK: Private
     private let store: HealthStore
     private let notifications = NotificationService()
+    private let health: HealthAccess
     private let preloaded: FoodDatabase
     private(set) var dayKey: String
     private static let coachModelKey = "ember.coachModel"
     private static let lastReviewKey = "ember.lastReviewDate"
+    /// Bounded recent window for Health fetches (history horizon the surfaces care about).
+    private static let healthLookbackDays = 180
 
-    init(store: HealthStore = FileHealthStore()) {
+    init(store: HealthStore = FileHealthStore(), health: HealthAccess? = nil) {
         self.store = store
+        self.health = health ?? HealthKitAccess()
         let key = DayKey.key(for: Date())
         self.dayKey = key
         self.profile = store.loadProfile()
@@ -90,6 +98,7 @@ final class AppModel: ObservableObject {
         refreshRecentExercises()
         notifications.requestPermissionIfNeeded()
         notifications.sync(reminderSettings)
+        refreshHealthData()
     }
 
     // MARK: Profile & goals
@@ -217,6 +226,44 @@ final class AppModel: ObservableObject {
         reminderSettings = settings
         store.saveReminderSettings(settings)
         notifications.sync(settings)
+    }
+
+    // MARK: Apple Health
+
+    /// Whether Health data is available on this device (false on iPad / hosts without Health).
+    var isHealthDataAvailable: Bool { health.isHealthDataAvailable }
+
+    /// Requests read authorization for Ember's Health types. Fire-and-forget by default; the
+    /// `completion` Bool means "the request flow finished", not "granted" (HealthKit hides
+    /// read-grant status). Invoked only from an explicit Settings tap — never on launch.
+    /// Refreshes the Health caches once the flow finishes, so a fresh grant populates data
+    /// without a relaunch.
+    func requestHealthAccess(completion: ((Bool) -> Void)? = nil) {
+        health.requestAuthorization { [weak self] ok in
+            self?.refreshHealthData()
+            completion?(ok)
+        }
+    }
+
+    /// Fetches recent Health weight + workouts into the caches. On-demand only (no observers);
+    /// failures / denial / no-data all leave the caches `[]` so every helper falls back to manual.
+    private func refreshHealthData() {
+        health.recentBodyMass(daysBack: Self.healthLookbackDays) { [weak self] samples in
+            self?.healthWeights = samples
+        }
+        health.recentWorkouts(daysBack: Self.healthLookbackDays) { [weak self] workouts in
+            self?.healthWorkouts = workouts
+        }
+    }
+
+    /// The user's current weight: most-recent Health body mass when present, else manual profile.
+    var currentWeightKg: Double? {
+        HealthMerge.currentWeightKg(health: healthWeights, manual: profile?.weightKg)
+    }
+
+    /// Manual workouts (for the per-exercise charts) plus a deduped Health workout summary.
+    var workoutHistory: MergedWorkoutHistory {
+        HealthMerge.mergedWorkouts(manual: allWorkouts, health: healthWorkouts)
     }
 
     // MARK: Coach (API key & model)

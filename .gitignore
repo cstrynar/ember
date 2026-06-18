@@ -19,6 +19,8 @@ DerivedData/
 # XcodeGen
 # (project.yml is checked in; generated .xcodeproj is in App/)
 App/Ember.xcodeproj/
+# Generated entitlements (xcodegen builds it from project.yml on every generate)
+App/Ember/Ember.entitlements
 
 # Local build / archive output
 App/build/

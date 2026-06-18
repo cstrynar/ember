@@ -61,8 +61,9 @@ final class CoachAgent {
             "Use the remember tool to record durable facts about the user (diet, goals, what's worked, injuries/limits); don't re-record facts already in your saved memory below.",
         ]
         if let p = app.profile, let g = app.goal {
+            let currentWeight = app.currentWeightKg ?? p.weightKg
             lines.append("Profile: \(p.sex.rawValue), age \(p.age), \(Int(p.heightCm.rounded())) cm, "
-                + "\(Int(p.weightKg.rounded())) kg, activity \(p.activity.rawValue), goal \(p.goal.rawValue), "
+                + "\(Int(currentWeight.rounded())) kg, activity \(p.activity.rawValue), goal \(p.goal.rawValue), "
                 + "diet \(p.dietaryPattern.rawValue). Daily target ~\(Int(g.calories.rounded())) kcal "
                 + "(P\(Int(g.proteinG.rounded())) C\(Int(g.carbG.rounded())) F\(Int(g.fatG.rounded()))).")
             if let target = p.goalWeightKg {

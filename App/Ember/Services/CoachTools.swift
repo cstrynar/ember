@@ -104,8 +104,9 @@ final class CoachTools {
         var d: [String: Any] = ["date": app.dayKey]
         if let p = app.profile {
             var profile: [String: Any] = ["sex": p.sex.rawValue, "age": p.age, "height_cm": p.heightCm,
-                            "weight_kg": p.weightKg, "activity": p.activity.rawValue,
-                            "goal": p.goal.rawValue, "diet": p.dietaryPattern.rawValue, "notes": p.notes]
+                            "weight_kg": app.currentWeightKg ?? p.weightKg, "activity": p.activity.rawValue,
+                            "goal": p.goal.rawValue, "diet": p.dietaryPattern.rawValue, "notes": p.notes,
+                            "weight_source": app.healthWeights.isEmpty ? "manual" : "health"]
             if let target = p.goalWeightKg { profile["goal_weight_kg"] = target }
             d["profile"] = profile
         }
