@@ -27,6 +27,11 @@ struct QuickAddView: View {
                         } label: {
                             Label("Add a custom food", systemImage: "square.and.pencil")
                         }
+                        NavigationLink {
+                            PhotoEstimateView(onDone: { dismiss() })
+                        } label: {
+                            Label("Estimate from photo", systemImage: "camera.viewfinder")
+                        }
                     }
                     if !model.favoriteFoods.isEmpty {
                         Section("Favorites") {

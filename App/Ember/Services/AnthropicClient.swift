@@ -61,12 +61,6 @@ final class AnthropicClient: CoachBackend {
               tools: [[String: Any]],
               model: String) async throws -> AnthropicResponse {
 
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        request.setValue("application/json", forHTTPHeaderField: "content-type")
-
         var body: [String: Any] = [
             "model": model,
             "max_tokens": 1500,
@@ -74,6 +68,39 @@ final class AnthropicClient: CoachBackend {
             "messages": messages,
         ]
         if !tools.isEmpty { body["tools"] = tools }
+        return try await post(body: body)
+    }
+
+    /// Single-shot vision send: posts one user message whose content is `[image, text]` to the
+    /// same Messages API and returns the assistant text. Non-tool — no `tools` array. Additive
+    /// to `AnthropicClient` only; the `CoachBackend` protocol and `send(...)` are unchanged.
+    func sendVision(systemPrompt: String,
+                    userText: String,
+                    image: VisionImage,
+                    model: String = "claude-sonnet-4-6") async throws -> AnthropicResponse {
+
+        let content: [[String: Any]] = [
+            imageContentBlock(image),
+            ["type": "text", "text": userText],
+        ]
+        let body: [String: Any] = [
+            "model": model,
+            "max_tokens": 1500,
+            "system": systemPrompt,
+            "messages": [["role": "user", "content": content]],
+        ]
+        return try await post(body: body)
+    }
+
+    /// Shared HTTP/decode path for every Messages API request: builds the request with the
+    /// existing endpoint/headers, posts `body`, maps failures to `CoachError`, and decodes into
+    /// `AnthropicResponse`. The only network egress; reused by both `send` and `sendVision`.
+    private func post(body: [String: Any]) async throws -> AnthropicResponse {
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let data: Data

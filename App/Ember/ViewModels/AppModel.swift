@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import EmberCore
 
 /// Shared `@MainActor` app state connecting SwiftUI views to `EmberCore` logic and the
@@ -287,6 +288,47 @@ final class AppModel: ObservableObject {
         UserDefaults.standard.set(model, forKey: Self.coachModelKey)
     }
 
+    // MARK: Photo-macros estimate
+
+    /// System prompt for the photo-macros vision call: it elicits exactly the JSON contract the
+    /// pure `PhotoMacroParser` decodes (an object with `items[]`, `assumptions`, `uncertainty`).
+    static let photoEstimateSystemPrompt =
+        "You are a nutrition estimator. You are shown one photo of food and must estimate its "
+        + "macros. Reply with ONLY a single JSON object (no prose, no code fence) of the shape: "
+        + #"{"items":[{"name":"...","serving":"...","calories":0,"protein_g":0,"carb_g":0,"fat_g":0}],"#
+        + #""assumptions":"...","uncertainty":"low|medium|high"}. "#
+        + "List one object in `items` per distinct food you can identify. `serving` is a short, "
+        + "human-readable portion estimate (e.g. \"1 cup (~150g)\"). Calories are kcal; protein_g, "
+        + "carb_g, fat_g are grams; estimate per the photo. Put any portion or ingredient "
+        + "assumptions in `assumptions`, and set `uncertainty` to how confident the estimate is."
+
+    /// Default user text accompanying the photo in the vision call.
+    static let photoEstimateUserText =
+        "Estimate the macros for the food in this photo and reply with the JSON object only."
+
+    /// Vision round-trip: encode a captured photo, ask Claude to estimate its macros, and parse the
+    /// reply into a typed outcome. Reuses `encodeForVision` (image plumbing),
+    /// `AnthropicClient.sendVision` (the only network egress), and the pure `PhotoMacroParser`.
+    /// Read-only this stage — nothing is logged. The two prompts default to the constants above so
+    /// the call site stays a one-liner.
+    func estimateMacros(from image: UIImage,
+                        systemPrompt: String = AppModel.photoEstimateSystemPrompt,
+                        userText: String = AppModel.photoEstimateUserText) async -> PhotoMacroOutcome {
+        guard let key = currentAPIKey(), !key.isEmpty else { return .noKey }
+        guard let vision = encodeForVision(image) else { return .encodeFailed }
+        do {
+            let response = try await AnthropicClient(apiKey: key)
+                .sendVision(systemPrompt: systemPrompt, userText: userText, image: vision)
+            switch PhotoMacroParser.parse(response.assistantText) {
+            case .success(let result): return .success(result)
+            case .failure(let err):    return .parseFailed(err)
+            }
+        } catch {
+            return .requestFailed((error as? CoachError)?.userMessage
+                                  ?? "The estimate request failed. Try another photo.")
+        }
+    }
+
     // MARK: Friction & weekly review
 
     func logFriction(context: String, note: String) {
@@ -495,5 +537,15 @@ struct QuickAddEntry: Identifiable {
     let item: FoodItem
     let recent: RecentFood?
     var id: String { item.id }
+}
+
+/// The typed result of `AppModel.estimateMacros`. Wraps the EmberCore `PhotoMacroResult` on
+/// success and carries the four failure modes; `requestFailed` holds a user-facing message.
+enum PhotoMacroOutcome {
+    case success(PhotoMacroResult)
+    case noKey
+    case encodeFailed
+    case parseFailed(PhotoMacroParseError)
+    case requestFailed(String)
 }
 
