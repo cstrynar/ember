@@ -1,0 +1,52 @@
+name: Ember
+options:
+  bundleIdPrefix: com.ember
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+
+packages:
+  EmberCore:
+    path: ../
+
+targets:
+  Ember:
+    type: application
+    platform: iOS
+    sources:
+      - path: Ember
+    resources:
+      - path: Ember/Assets.xcassets
+      - path: Ember/Resources/Info.plist
+    info:
+      path: Ember/Resources/Info.plist
+      # NOTE: xcodegen *generates* this Info.plist from the keys below on every
+      # `xcodegen generate`, overwriting hand edits. Add Info.plist keys HERE.
+      properties:
+        # Marketing version (1.0). Bump CFBundleVersion for every TestFlight upload —
+        # App Store Connect rejects a build number it has already seen.
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "4"
+        LSRequiresIPhoneOS: true
+        # Without a launch screen, iOS runs the app in scaled-down compatibility
+        # mode (letterboxed with black bars). An empty UILaunchScreen opts into
+        # native full-screen rendering.
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSUserNotificationsUsageDescription: "Ember sends optional reminders for meals and hydration at times you choose. The app is fully usable without them."
+    dependencies:
+      - package: EmberCore
+    settings:
+      base:
+        PRODUCT_NAME: Ember
+        PRODUCT_BUNDLE_IDENTIFIER: com.nimmynurner.ember
+        SWIFT_VERSION: "5.9"
+        DEVELOPMENT_LANGUAGE: en
+        TARGETED_DEVICE_FAMILY: "1"   # iPhone only
+        SUPPORTS_MAC_DESIGNED_FOR_IPAD: NO
+        # --- Signing (automatic / Xcode-managed) ---
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: "GW3SLFGTT4"   # 10-char Apple Developer Team ID

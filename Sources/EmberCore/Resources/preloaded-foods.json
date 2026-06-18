@@ -1,0 +1,1253 @@
+[
+  {
+    "id": "chicken_breast_cooked",
+    "name": "Chicken breast, cooked",
+    "serving": "100 g",
+    "kcal": 165,
+    "protein": 31,
+    "carb": 0,
+    "fat": 3.6
+  },
+  {
+    "id": "chicken_thigh_cooked",
+    "name": "Chicken thigh, cooked",
+    "serving": "100 g",
+    "kcal": 209,
+    "protein": 26,
+    "carb": 0,
+    "fat": 10.9
+  },
+  {
+    "id": "ground_chicken_cooked",
+    "name": "Ground chicken, cooked",
+    "serving": "100 g",
+    "kcal": 189,
+    "protein": 25,
+    "carb": 0,
+    "fat": 9
+  },
+  {
+    "id": "ground_beef_85_15_cooked",
+    "name": "Ground beef, 85/15, cooked",
+    "serving": "100 g",
+    "kcal": 250,
+    "protein": 26,
+    "carb": 0,
+    "fat": 15
+  },
+  {
+    "id": "ground_beef_90_10_cooked",
+    "name": "Ground beef, 90/10, cooked",
+    "serving": "100 g",
+    "kcal": 217,
+    "protein": 26,
+    "carb": 0,
+    "fat": 11.8
+  },
+  {
+    "id": "sirloin_steak_cooked",
+    "name": "Sirloin steak, cooked",
+    "serving": "100 g",
+    "kcal": 206,
+    "protein": 28,
+    "carb": 0,
+    "fat": 10
+  },
+  {
+    "id": "pork_chop_cooked",
+    "name": "Pork chop, cooked",
+    "serving": "100 g",
+    "kcal": 231,
+    "protein": 26,
+    "carb": 0,
+    "fat": 14
+  },
+  {
+    "id": "ground_turkey_93_7_cooked",
+    "name": "Ground turkey, 93/7, cooked",
+    "serving": "100 g",
+    "kcal": 176,
+    "protein": 22,
+    "carb": 0,
+    "fat": 9
+  },
+  {
+    "id": "turkey_breast_deli",
+    "name": "Turkey breast, deli",
+    "serving": "2 slices (56 g)",
+    "kcal": 50,
+    "protein": 10,
+    "carb": 1,
+    "fat": 0.5
+  },
+  {
+    "id": "ham_deli",
+    "name": "Ham, deli",
+    "serving": "2 slices (56 g)",
+    "kcal": 60,
+    "protein": 9,
+    "carb": 1.5,
+    "fat": 2
+  },
+  {
+    "id": "bacon_cooked",
+    "name": "Bacon, cooked",
+    "serving": "2 slices (16 g)",
+    "kcal": 87,
+    "protein": 6,
+    "carb": 0.2,
+    "fat": 6.7
+  },
+  {
+    "id": "sausage_link_cooked",
+    "name": "Sausage link, cooked",
+    "serving": "1 link (45 g)",
+    "kcal": 140,
+    "protein": 8,
+    "carb": 1,
+    "fat": 12
+  },
+  {
+    "id": "salmon_cooked",
+    "name": "Salmon, cooked",
+    "serving": "100 g",
+    "kcal": 206,
+    "protein": 22,
+    "carb": 0,
+    "fat": 12
+  },
+  {
+    "id": "tuna_canned_in_water",
+    "name": "Tuna, canned in water",
+    "serving": "1 can drained (142 g)",
+    "kcal": 142,
+    "protein": 33,
+    "carb": 0,
+    "fat": 1
+  },
+  {
+    "id": "shrimp_cooked",
+    "name": "Shrimp, cooked",
+    "serving": "100 g",
+    "kcal": 99,
+    "protein": 24,
+    "carb": 0.2,
+    "fat": 0.3
+  },
+  {
+    "id": "cod_cooked",
+    "name": "Cod, cooked",
+    "serving": "100 g",
+    "kcal": 105,
+    "protein": 23,
+    "carb": 0,
+    "fat": 0.9
+  },
+  {
+    "id": "tilapia_cooked",
+    "name": "Tilapia, cooked",
+    "serving": "100 g",
+    "kcal": 128,
+    "protein": 26,
+    "carb": 0,
+    "fat": 2.7
+  },
+  {
+    "id": "egg_large",
+    "name": "Egg, large",
+    "serving": "1 large (50 g)",
+    "kcal": 72,
+    "protein": 6.3,
+    "carb": 0.4,
+    "fat": 4.8
+  },
+  {
+    "id": "egg_white_large",
+    "name": "Egg white, large",
+    "serving": "1 (33 g)",
+    "kcal": 17,
+    "protein": 3.6,
+    "carb": 0.2,
+    "fat": 0.1
+  },
+  {
+    "id": "greek_yogurt_nonfat_plain",
+    "name": "Greek yogurt, nonfat plain",
+    "serving": "170 g",
+    "kcal": 100,
+    "protein": 17,
+    "carb": 6,
+    "fat": 0.7
+  },
+  {
+    "id": "greek_yogurt_2_plain",
+    "name": "Greek yogurt, 2% plain",
+    "serving": "170 g",
+    "kcal": 150,
+    "protein": 20,
+    "carb": 8,
+    "fat": 4
+  },
+  {
+    "id": "cottage_cheese_low_fat",
+    "name": "Cottage cheese, low-fat",
+    "serving": "1/2 cup (113 g)",
+    "kcal": 90,
+    "protein": 12,
+    "carb": 5,
+    "fat": 2.5
+  },
+  {
+    "id": "whole_milk",
+    "name": "Whole milk",
+    "serving": "1 cup (244 g)",
+    "kcal": 149,
+    "protein": 8,
+    "carb": 12,
+    "fat": 8
+  },
+  {
+    "id": "2_milk",
+    "name": "2% milk",
+    "serving": "1 cup (244 g)",
+    "kcal": 122,
+    "protein": 8,
+    "carb": 12,
+    "fat": 5
+  },
+  {
+    "id": "skim_milk",
+    "name": "Skim milk",
+    "serving": "1 cup (245 g)",
+    "kcal": 83,
+    "protein": 8,
+    "carb": 12,
+    "fat": 0.2
+  },
+  {
+    "id": "almond_milk_unsweetened",
+    "name": "Almond milk, unsweetened",
+    "serving": "1 cup (240 g)",
+    "kcal": 30,
+    "protein": 1,
+    "carb": 1,
+    "fat": 2.5
+  },
+  {
+    "id": "cheddar_cheese",
+    "name": "Cheddar cheese",
+    "serving": "1 oz (28 g)",
+    "kcal": 115,
+    "protein": 7,
+    "carb": 0.4,
+    "fat": 9.5
+  },
+  {
+    "id": "mozzarella_part_skim",
+    "name": "Mozzarella, part-skim",
+    "serving": "1 oz (28 g)",
+    "kcal": 72,
+    "protein": 7,
+    "carb": 1,
+    "fat": 4.5
+  },
+  {
+    "id": "parmesan_grated",
+    "name": "Parmesan, grated",
+    "serving": "1 tbsp (5 g)",
+    "kcal": 22,
+    "protein": 2,
+    "carb": 0.2,
+    "fat": 1.4
+  },
+  {
+    "id": "string_cheese",
+    "name": "String cheese",
+    "serving": "1 stick (28 g)",
+    "kcal": 80,
+    "protein": 7,
+    "carb": 1,
+    "fat": 6
+  },
+  {
+    "id": "butter",
+    "name": "Butter",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 102,
+    "protein": 0.1,
+    "carb": 0,
+    "fat": 11.5
+  },
+  {
+    "id": "cream_cheese",
+    "name": "Cream cheese",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 51,
+    "protein": 1,
+    "carb": 0.8,
+    "fat": 5
+  },
+  {
+    "id": "white_rice_cooked",
+    "name": "White rice, cooked",
+    "serving": "1 cup (158 g)",
+    "kcal": 205,
+    "protein": 4.3,
+    "carb": 45,
+    "fat": 0.4
+  },
+  {
+    "id": "brown_rice_cooked",
+    "name": "Brown rice, cooked",
+    "serving": "1 cup (195 g)",
+    "kcal": 216,
+    "protein": 5,
+    "carb": 45,
+    "fat": 1.8
+  },
+  {
+    "id": "quinoa_cooked",
+    "name": "Quinoa, cooked",
+    "serving": "1 cup (185 g)",
+    "kcal": 222,
+    "protein": 8,
+    "carb": 39,
+    "fat": 3.6
+  },
+  {
+    "id": "oats_dry",
+    "name": "Oats, dry",
+    "serving": "1/2 cup (40 g)",
+    "kcal": 150,
+    "protein": 5,
+    "carb": 27,
+    "fat": 3
+  },
+  {
+    "id": "pasta_cooked",
+    "name": "Pasta, cooked",
+    "serving": "1 cup (140 g)",
+    "kcal": 220,
+    "protein": 8,
+    "carb": 43,
+    "fat": 1.3
+  },
+  {
+    "id": "couscous_cooked",
+    "name": "Couscous, cooked",
+    "serving": "1 cup (157 g)",
+    "kcal": 176,
+    "protein": 6,
+    "carb": 36,
+    "fat": 0.3
+  },
+  {
+    "id": "whole_wheat_bread",
+    "name": "Whole wheat bread",
+    "serving": "1 slice (28 g)",
+    "kcal": 69,
+    "protein": 3.6,
+    "carb": 12,
+    "fat": 1
+  },
+  {
+    "id": "white_bread",
+    "name": "White bread",
+    "serving": "1 slice (25 g)",
+    "kcal": 66,
+    "protein": 2,
+    "carb": 13,
+    "fat": 0.8
+  },
+  {
+    "id": "bagel_plain",
+    "name": "Bagel, plain",
+    "serving": "1 medium (95 g)",
+    "kcal": 245,
+    "protein": 10,
+    "carb": 48,
+    "fat": 1.5
+  },
+  {
+    "id": "english_muffin",
+    "name": "English muffin",
+    "serving": "1 (57 g)",
+    "kcal": 134,
+    "protein": 4.4,
+    "carb": 26,
+    "fat": 1
+  },
+  {
+    "id": "flour_tortilla",
+    "name": "Flour tortilla",
+    "serving": "1 medium (45 g)",
+    "kcal": 140,
+    "protein": 4,
+    "carb": 23,
+    "fat": 3.5
+  },
+  {
+    "id": "corn_flakes_cereal",
+    "name": "Corn flakes cereal",
+    "serving": "1 cup (28 g)",
+    "kcal": 100,
+    "protein": 2,
+    "carb": 24,
+    "fat": 0.1
+  },
+  {
+    "id": "rice_cake",
+    "name": "Rice cake",
+    "serving": "1 (9 g)",
+    "kcal": 35,
+    "protein": 0.7,
+    "carb": 7.3,
+    "fat": 0.3
+  },
+  {
+    "id": "saltine_crackers",
+    "name": "Saltine crackers",
+    "serving": "5 (15 g)",
+    "kcal": 62,
+    "protein": 1.3,
+    "carb": 11,
+    "fat": 1.4
+  },
+  {
+    "id": "pancakes",
+    "name": "Pancakes",
+    "serving": "2 (77 g)",
+    "kcal": 175,
+    "protein": 5,
+    "carb": 22,
+    "fat": 7
+  },
+  {
+    "id": "baked_potato",
+    "name": "Baked potato",
+    "serving": "1 medium (173 g)",
+    "kcal": 161,
+    "protein": 4.3,
+    "carb": 37,
+    "fat": 0.2
+  },
+  {
+    "id": "sweet_potato_baked",
+    "name": "Sweet potato, baked",
+    "serving": "1 medium (151 g)",
+    "kcal": 112,
+    "protein": 2,
+    "carb": 26,
+    "fat": 0.1
+  },
+  {
+    "id": "hash_browns",
+    "name": "Hash browns",
+    "serving": "1 cup (156 g)",
+    "kcal": 207,
+    "protein": 2,
+    "carb": 22,
+    "fat": 12
+  },
+  {
+    "id": "corn",
+    "name": "Corn",
+    "serving": "1 cup (154 g)",
+    "kcal": 132,
+    "protein": 5,
+    "carb": 29,
+    "fat": 1.8
+  },
+  {
+    "id": "black_beans_cooked",
+    "name": "Black beans, cooked",
+    "serving": "1/2 cup (86 g)",
+    "kcal": 114,
+    "protein": 7.6,
+    "carb": 20,
+    "fat": 0.5
+  },
+  {
+    "id": "chickpeas_cooked",
+    "name": "Chickpeas, cooked",
+    "serving": "1/2 cup (82 g)",
+    "kcal": 134,
+    "protein": 7,
+    "carb": 22,
+    "fat": 2
+  },
+  {
+    "id": "lentils_cooked",
+    "name": "Lentils, cooked",
+    "serving": "1/2 cup (99 g)",
+    "kcal": 115,
+    "protein": 9,
+    "carb": 20,
+    "fat": 0.4
+  },
+  {
+    "id": "kidney_beans_cooked",
+    "name": "Kidney beans, cooked",
+    "serving": "1/2 cup (89 g)",
+    "kcal": 112,
+    "protein": 7.7,
+    "carb": 20,
+    "fat": 0.4
+  },
+  {
+    "id": "edamame",
+    "name": "Edamame",
+    "serving": "1/2 cup (78 g)",
+    "kcal": 94,
+    "protein": 9,
+    "carb": 7,
+    "fat": 4
+  },
+  {
+    "id": "tofu_firm",
+    "name": "Tofu, firm",
+    "serving": "100 g",
+    "kcal": 144,
+    "protein": 15,
+    "carb": 3.5,
+    "fat": 8.7
+  },
+  {
+    "id": "green_peas",
+    "name": "Green peas",
+    "serving": "1 cup (145 g)",
+    "kcal": 117,
+    "protein": 8,
+    "carb": 21,
+    "fat": 0.6
+  },
+  {
+    "id": "hummus",
+    "name": "Hummus",
+    "serving": "2 tbsp (30 g)",
+    "kcal": 70,
+    "protein": 2,
+    "carb": 6,
+    "fat": 5
+  },
+  {
+    "id": "peanut_butter",
+    "name": "Peanut butter",
+    "serving": "2 tbsp (32 g)",
+    "kcal": 188,
+    "protein": 8,
+    "carb": 6,
+    "fat": 16
+  },
+  {
+    "id": "almond_butter",
+    "name": "Almond butter",
+    "serving": "2 tbsp (32 g)",
+    "kcal": 196,
+    "protein": 7,
+    "carb": 6,
+    "fat": 18
+  },
+  {
+    "id": "almonds",
+    "name": "Almonds",
+    "serving": "1 oz (28 g)",
+    "kcal": 164,
+    "protein": 6,
+    "carb": 6,
+    "fat": 14
+  },
+  {
+    "id": "walnuts",
+    "name": "Walnuts",
+    "serving": "1 oz (28 g)",
+    "kcal": 185,
+    "protein": 4.3,
+    "carb": 4,
+    "fat": 18.5
+  },
+  {
+    "id": "cashews",
+    "name": "Cashews",
+    "serving": "1 oz (28 g)",
+    "kcal": 157,
+    "protein": 5,
+    "carb": 9,
+    "fat": 12
+  },
+  {
+    "id": "peanuts",
+    "name": "Peanuts",
+    "serving": "1 oz (28 g)",
+    "kcal": 161,
+    "protein": 7,
+    "carb": 4.6,
+    "fat": 14
+  },
+  {
+    "id": "pistachios",
+    "name": "Pistachios",
+    "serving": "1 oz (28 g)",
+    "kcal": 159,
+    "protein": 6,
+    "carb": 8,
+    "fat": 13
+  },
+  {
+    "id": "sunflower_seeds",
+    "name": "Sunflower seeds",
+    "serving": "1 oz (28 g)",
+    "kcal": 165,
+    "protein": 5.5,
+    "carb": 7,
+    "fat": 14
+  },
+  {
+    "id": "pumpkin_seeds",
+    "name": "Pumpkin seeds",
+    "serving": "1 oz (28 g)",
+    "kcal": 151,
+    "protein": 7,
+    "carb": 5,
+    "fat": 13
+  },
+  {
+    "id": "chia_seeds",
+    "name": "Chia seeds",
+    "serving": "1 tbsp (12 g)",
+    "kcal": 58,
+    "protein": 2,
+    "carb": 5,
+    "fat": 3.7
+  },
+  {
+    "id": "ground_flaxseed",
+    "name": "Ground flaxseed",
+    "serving": "1 tbsp (7 g)",
+    "kcal": 37,
+    "protein": 1.3,
+    "carb": 2,
+    "fat": 3
+  },
+  {
+    "id": "banana",
+    "name": "Banana",
+    "serving": "1 medium (118 g)",
+    "kcal": 105,
+    "protein": 1.3,
+    "carb": 27,
+    "fat": 0.4
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "serving": "1 medium (182 g)",
+    "kcal": 95,
+    "protein": 0.5,
+    "carb": 25,
+    "fat": 0.3
+  },
+  {
+    "id": "orange",
+    "name": "Orange",
+    "serving": "1 medium (131 g)",
+    "kcal": 62,
+    "protein": 1.2,
+    "carb": 15,
+    "fat": 0.2
+  },
+  {
+    "id": "grapefruit",
+    "name": "Grapefruit",
+    "serving": "1/2 medium (123 g)",
+    "kcal": 52,
+    "protein": 1,
+    "carb": 13,
+    "fat": 0.2
+  },
+  {
+    "id": "pear",
+    "name": "Pear",
+    "serving": "1 medium (178 g)",
+    "kcal": 101,
+    "protein": 0.6,
+    "carb": 27,
+    "fat": 0.2
+  },
+  {
+    "id": "peach",
+    "name": "Peach",
+    "serving": "1 medium (150 g)",
+    "kcal": 59,
+    "protein": 1.4,
+    "carb": 14,
+    "fat": 0.4
+  },
+  {
+    "id": "strawberries",
+    "name": "Strawberries",
+    "serving": "1 cup (152 g)",
+    "kcal": 49,
+    "protein": 1,
+    "carb": 12,
+    "fat": 0.5
+  },
+  {
+    "id": "blueberries",
+    "name": "Blueberries",
+    "serving": "1 cup (148 g)",
+    "kcal": 84,
+    "protein": 1.1,
+    "carb": 21,
+    "fat": 0.5
+  },
+  {
+    "id": "raspberries",
+    "name": "Raspberries",
+    "serving": "1 cup (123 g)",
+    "kcal": 64,
+    "protein": 1.5,
+    "carb": 15,
+    "fat": 0.8
+  },
+  {
+    "id": "grapes",
+    "name": "Grapes",
+    "serving": "1 cup (151 g)",
+    "kcal": 104,
+    "protein": 1.1,
+    "carb": 27,
+    "fat": 0.2
+  },
+  {
+    "id": "cherries",
+    "name": "Cherries",
+    "serving": "1 cup (154 g)",
+    "kcal": 97,
+    "protein": 1.6,
+    "carb": 25,
+    "fat": 0.3
+  },
+  {
+    "id": "watermelon",
+    "name": "Watermelon",
+    "serving": "1 cup (152 g)",
+    "kcal": 46,
+    "protein": 0.9,
+    "carb": 12,
+    "fat": 0.2
+  },
+  {
+    "id": "cantaloupe",
+    "name": "Cantaloupe",
+    "serving": "1 cup (160 g)",
+    "kcal": 54,
+    "protein": 1.3,
+    "carb": 13,
+    "fat": 0.3
+  },
+  {
+    "id": "pineapple",
+    "name": "Pineapple",
+    "serving": "1 cup (165 g)",
+    "kcal": 82,
+    "protein": 0.9,
+    "carb": 22,
+    "fat": 0.2
+  },
+  {
+    "id": "mango",
+    "name": "Mango",
+    "serving": "1 cup (165 g)",
+    "kcal": 99,
+    "protein": 1.4,
+    "carb": 25,
+    "fat": 0.6
+  },
+  {
+    "id": "avocado",
+    "name": "Avocado",
+    "serving": "1/2 medium (100 g)",
+    "kcal": 160,
+    "protein": 2,
+    "carb": 9,
+    "fat": 15
+  },
+  {
+    "id": "broccoli_cooked",
+    "name": "Broccoli, cooked",
+    "serving": "1 cup (156 g)",
+    "kcal": 55,
+    "protein": 3.7,
+    "carb": 11,
+    "fat": 0.6
+  },
+  {
+    "id": "cauliflower",
+    "name": "Cauliflower",
+    "serving": "1 cup (107 g)",
+    "kcal": 27,
+    "protein": 2,
+    "carb": 5,
+    "fat": 0.3
+  },
+  {
+    "id": "spinach_raw",
+    "name": "Spinach, raw",
+    "serving": "1 cup (30 g)",
+    "kcal": 7,
+    "protein": 0.9,
+    "carb": 1.1,
+    "fat": 0.1
+  },
+  {
+    "id": "kale_raw",
+    "name": "Kale, raw",
+    "serving": "1 cup (21 g)",
+    "kcal": 7,
+    "protein": 0.6,
+    "carb": 1.4,
+    "fat": 0.1
+  },
+  {
+    "id": "romaine_lettuce",
+    "name": "Romaine lettuce",
+    "serving": "1 cup (47 g)",
+    "kcal": 8,
+    "protein": 0.6,
+    "carb": 1.5,
+    "fat": 0.1
+  },
+  {
+    "id": "carrot",
+    "name": "Carrot",
+    "serving": "1 medium (61 g)",
+    "kcal": 25,
+    "protein": 0.6,
+    "carb": 6,
+    "fat": 0.1
+  },
+  {
+    "id": "bell_pepper",
+    "name": "Bell pepper",
+    "serving": "1 medium (119 g)",
+    "kcal": 31,
+    "protein": 1,
+    "carb": 7,
+    "fat": 0.3
+  },
+  {
+    "id": "cucumber",
+    "name": "Cucumber",
+    "serving": "1 cup (104 g)",
+    "kcal": 16,
+    "protein": 0.7,
+    "carb": 3.8,
+    "fat": 0.1
+  },
+  {
+    "id": "tomato",
+    "name": "Tomato",
+    "serving": "1 medium (123 g)",
+    "kcal": 22,
+    "protein": 1.1,
+    "carb": 4.8,
+    "fat": 0.2
+  },
+  {
+    "id": "green_beans",
+    "name": "Green beans",
+    "serving": "1 cup (100 g)",
+    "kcal": 31,
+    "protein": 1.8,
+    "carb": 7,
+    "fat": 0.2
+  },
+  {
+    "id": "mushrooms",
+    "name": "Mushrooms",
+    "serving": "1 cup (70 g)",
+    "kcal": 15,
+    "protein": 2.2,
+    "carb": 2.3,
+    "fat": 0.2
+  },
+  {
+    "id": "onion",
+    "name": "Onion",
+    "serving": "1/2 cup (80 g)",
+    "kcal": 32,
+    "protein": 0.9,
+    "carb": 7.5,
+    "fat": 0.1
+  },
+  {
+    "id": "zucchini",
+    "name": "Zucchini",
+    "serving": "1 cup (124 g)",
+    "kcal": 21,
+    "protein": 1.5,
+    "carb": 3.9,
+    "fat": 0.4
+  },
+  {
+    "id": "asparagus",
+    "name": "Asparagus",
+    "serving": "1 cup (134 g)",
+    "kcal": 27,
+    "protein": 3,
+    "carb": 5,
+    "fat": 0.2
+  },
+  {
+    "id": "brussels_sprouts",
+    "name": "Brussels sprouts",
+    "serving": "1 cup (88 g)",
+    "kcal": 38,
+    "protein": 3,
+    "carb": 8,
+    "fat": 0.3
+  },
+  {
+    "id": "beets",
+    "name": "Beets",
+    "serving": "1 cup (136 g)",
+    "kcal": 58,
+    "protein": 2.2,
+    "carb": 13,
+    "fat": 0.2
+  },
+  {
+    "id": "olive_oil",
+    "name": "Olive oil",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 119,
+    "protein": 0,
+    "carb": 0,
+    "fat": 14
+  },
+  {
+    "id": "coconut_oil",
+    "name": "Coconut oil",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 117,
+    "protein": 0,
+    "carb": 0,
+    "fat": 14
+  },
+  {
+    "id": "mayonnaise",
+    "name": "Mayonnaise",
+    "serving": "1 tbsp (14 g)",
+    "kcal": 94,
+    "protein": 0.1,
+    "carb": 0.1,
+    "fat": 10
+  },
+  {
+    "id": "ranch_dressing",
+    "name": "Ranch dressing",
+    "serving": "2 tbsp (30 g)",
+    "kcal": 130,
+    "protein": 0.5,
+    "carb": 2,
+    "fat": 13.5
+  },
+  {
+    "id": "orange_juice",
+    "name": "Orange juice",
+    "serving": "1 cup (248 g)",
+    "kcal": 112,
+    "protein": 1.7,
+    "carb": 26,
+    "fat": 0.5
+  },
+  {
+    "id": "coffee_black",
+    "name": "Coffee, black",
+    "serving": "1 cup (240 g)",
+    "kcal": 2,
+    "protein": 0.3,
+    "carb": 0,
+    "fat": 0
+  },
+  {
+    "id": "cola",
+    "name": "Cola",
+    "serving": "12 oz (368 g)",
+    "kcal": 140,
+    "protein": 0,
+    "carb": 39,
+    "fat": 0
+  },
+  {
+    "id": "sports_drink",
+    "name": "Sports drink",
+    "serving": "20 oz (591 g)",
+    "kcal": 130,
+    "protein": 0,
+    "carb": 34,
+    "fat": 0
+  },
+  {
+    "id": "beer",
+    "name": "Beer",
+    "serving": "12 oz (355 g)",
+    "kcal": 153,
+    "protein": 1.6,
+    "carb": 13,
+    "fat": 0
+  },
+  {
+    "id": "red_wine",
+    "name": "Red wine",
+    "serving": "5 oz (147 g)",
+    "kcal": 125,
+    "protein": 0.1,
+    "carb": 4,
+    "fat": 0
+  },
+  {
+    "id": "whey_protein_powder",
+    "name": "Whey protein powder",
+    "serving": "1 scoop (31 g)",
+    "kcal": 120,
+    "protein": 24,
+    "carb": 3,
+    "fat": 1.5
+  },
+  {
+    "id": "protein_shake_ready_to_drink",
+    "name": "Protein shake, ready-to-drink",
+    "serving": "1 bottle (330 mL)",
+    "kcal": 160,
+    "protein": 30,
+    "carb": 5,
+    "fat": 2.5
+  },
+  {
+    "id": "protein_bar",
+    "name": "Protein bar",
+    "serving": "1 bar (60 g)",
+    "kcal": 220,
+    "protein": 20,
+    "carb": 22,
+    "fat": 7
+  },
+  {
+    "id": "dark_chocolate",
+    "name": "Dark chocolate",
+    "serving": "1 oz (28 g)",
+    "kcal": 170,
+    "protein": 2,
+    "carb": 13,
+    "fat": 12
+  },
+  {
+    "id": "potato_chips",
+    "name": "Potato chips",
+    "serving": "1 oz (28 g)",
+    "kcal": 152,
+    "protein": 2,
+    "carb": 15,
+    "fat": 10
+  },
+  {
+    "id": "pretzels",
+    "name": "Pretzels",
+    "serving": "1 oz (28 g)",
+    "kcal": 108,
+    "protein": 2.6,
+    "carb": 23,
+    "fat": 0.8
+  },
+  {
+    "id": "popcorn_air_popped",
+    "name": "Popcorn, air-popped",
+    "serving": "3 cups (24 g)",
+    "kcal": 93,
+    "protein": 3,
+    "carb": 19,
+    "fat": 1
+  },
+  {
+    "id": "granola_bar",
+    "name": "Granola bar",
+    "serving": "1 bar (40 g)",
+    "kcal": 190,
+    "protein": 4,
+    "carb": 29,
+    "fat": 7
+  },
+  {
+    "id": "trail_mix",
+    "name": "Trail mix",
+    "serving": "1 oz (28 g)",
+    "kcal": 137,
+    "protein": 4,
+    "carb": 13,
+    "fat": 9
+  },
+  {
+    "id": "vanilla_ice_cream",
+    "name": "Vanilla ice cream",
+    "serving": "1/2 cup (66 g)",
+    "kcal": 137,
+    "protein": 2.3,
+    "carb": 16,
+    "fat": 7
+  },
+  {
+    "id": "cheeseburger_fast_food",
+    "name": "Cheeseburger, fast food",
+    "serving": "1 burger",
+    "kcal": 300,
+    "protein": 15,
+    "carb": 33,
+    "fat": 12
+  },
+  {
+    "id": "cheese_pizza",
+    "name": "Cheese pizza",
+    "serving": "1 slice (107 g)",
+    "kcal": 285,
+    "protein": 12,
+    "carb": 36,
+    "fat": 10
+  },
+  {
+    "id": "french_fries",
+    "name": "French fries",
+    "serving": "medium (117 g)",
+    "kcal": 365,
+    "protein": 4,
+    "carb": 48,
+    "fat": 17
+  },
+  {
+    "id": "bean_cheese_burrito",
+    "name": "Bean & cheese burrito",
+    "serving": "1 burrito",
+    "kcal": 380,
+    "protein": 14,
+    "carb": 55,
+    "fat": 12
+  },
+  {
+    "id": "california_roll",
+    "name": "California roll",
+    "serving": "6 pieces",
+    "kcal": 255,
+    "protein": 9,
+    "carb": 38,
+    "fat": 7
+  },
+  {
+    "id": "instant_ramen",
+    "name": "Instant ramen",
+    "serving": "1 pack",
+    "kcal": 380,
+    "protein": 8,
+    "carb": 52,
+    "fat": 14
+  },
+  {
+    "id": "mac_and_cheese",
+    "name": "Mac and cheese",
+    "serving": "1 cup (200 g)",
+    "kcal": 310,
+    "protein": 13,
+    "carb": 32,
+    "fat": 14
+  },
+  {
+    "id": "chicken_caesar_wrap",
+    "name": "Chicken Caesar wrap",
+    "serving": "1 wrap",
+    "kcal": 430,
+    "protein": 25,
+    "carb": 35,
+    "fat": 22
+  },
+  {
+    "id": "pb_j_sandwich",
+    "name": "PB&J sandwich",
+    "serving": "1 sandwich",
+    "kcal": 350,
+    "protein": 12,
+    "carb": 45,
+    "fat": 14
+  },
+  {
+    "id": "ketchup",
+    "name": "Ketchup",
+    "serving": "1 tbsp (17 g)",
+    "kcal": 17,
+    "protein": 0.2,
+    "carb": 4.5,
+    "fat": 0
+  },
+  {
+    "id": "mustard",
+    "name": "Mustard",
+    "serving": "1 tsp (5 g)",
+    "kcal": 3,
+    "protein": 0.2,
+    "carb": 0.3,
+    "fat": 0.2
+  },
+  {
+    "id": "soy_sauce",
+    "name": "Soy sauce",
+    "serving": "1 tbsp (16 g)",
+    "kcal": 8,
+    "protein": 1.3,
+    "carb": 0.8,
+    "fat": 0
+  },
+  {
+    "id": "salsa",
+    "name": "Salsa",
+    "serving": "2 tbsp (36 g)",
+    "kcal": 10,
+    "protein": 0.5,
+    "carb": 2,
+    "fat": 0.1
+  },
+  {
+    "id": "honey",
+    "name": "Honey",
+    "serving": "1 tbsp (21 g)",
+    "kcal": 64,
+    "protein": 0.1,
+    "carb": 17,
+    "fat": 0
+  },
+  {
+    "id": "maple_syrup",
+    "name": "Maple syrup",
+    "serving": "1 tbsp (20 g)",
+    "kcal": 52,
+    "protein": 0,
+    "carb": 13,
+    "fat": 0
+  },
+  {
+    "id": "jam",
+    "name": "Jam",
+    "serving": "1 tbsp (20 g)",
+    "kcal": 56,
+    "protein": 0.1,
+    "carb": 14,
+    "fat": 0
+  },
+  {
+    "id": "sugar_white",
+    "name": "Sugar, white",
+    "serving": "1 tsp (4 g)",
+    "kcal": 16,
+    "protein": 0,
+    "carb": 4.2,
+    "fat": 0
+  }
+]

@@ -1,0 +1,44 @@
+# Swift / SPM
+.build/
+.swiftpm/
+*.o
+*.d
+*.swp
+
+# Xcode
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# XcodeGen
+# (project.yml is checked in; generated .xcodeproj is in App/)
+App/Ember.xcodeproj/
+
+# Local build / archive output
+App/build/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# CocoaPods / SPM caches
+Pods/
+Carthage/
+
+# Environment
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
