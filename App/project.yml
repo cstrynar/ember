@@ -38,6 +38,9 @@ targets:
           - UIInterfaceOrientationPortrait
         NSUserNotificationsUsageDescription: "Ember sends optional reminders for meals and hydration at times you choose. The app is fully usable without them."
         NSHealthShareUsageDescription: "Ember can read your workouts and body weight (and steps, active energy, resting heart rate, and sleep) from Apple Health so your coach and progress reflect real data. Reading is optional — deny it and Ember works fully on data you enter manually. Ember never writes to Health."
+        # Ember only *reads* from Health and never writes, but Apple requires this write
+        # purpose string whenever the HealthKit capability is present. The string says so plainly.
+        NSHealthUpdateUsageDescription: "Ember does not write to Apple Health — it only reads your data. This entry is present because Apple requires a write-purpose string whenever an app includes the HealthKit capability."
         NSCameraUsageDescription: "Ember uses the camera so you can photograph a meal and estimate its macros. This is optional — you can pick an existing photo instead, and Ember never uploads photos anywhere except to estimate macros via the Anthropic API with your own key."
     # NOTE: xcodegen *generates* Ember/Ember.entitlements from the block below on every
     # `xcodegen generate`. Like Ember.xcodeproj it is a build artifact — git-ignored, never
