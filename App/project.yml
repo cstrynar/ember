@@ -25,8 +25,8 @@ targets:
       properties:
         # Marketing version (1.0). Bump CFBundleVersion for every TestFlight upload —
         # App Store Connect rejects a build number it has already seen.
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "6"
+        CFBundleShortVersionString: "1.1"
+        CFBundleVersion: "7"
         LSRequiresIPhoneOS: true
         # Without a launch screen, iOS runs the app in scaled-down compatibility
         # mode (letterboxed with black bars). An empty UILaunchScreen opts into
