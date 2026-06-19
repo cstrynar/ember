@@ -42,7 +42,8 @@ final class AppModel: ObservableObject {
     private static let coachModelKey = "ember.coachModel"
     private static let lastReviewKey = "ember.lastReviewDate"
     /// Bounded recent window for Health fetches (history horizon the surfaces care about).
-    private static let healthLookbackDays = 180
+    /// Also the hard ceiling the `get_health_data` coach tool clamps its `days` window to.
+    static let healthLookbackDays = 180
 
     init(store: HealthStore = FileHealthStore(), health: HealthAccess? = nil) {
         self.store = store
@@ -265,6 +266,34 @@ final class AppModel: ObservableObject {
     /// Manual workouts (for the per-exercise charts) plus a deduped Health workout summary.
     var workoutHistory: MergedWorkoutHistory {
         HealthMerge.mergedWorkouts(manual: allWorkouts, health: healthWorkouts)
+    }
+
+    /// On-demand reads of the four activity/recovery/sleep streams for the `get_health_data`
+    /// coach tool. These bridge the injected (completion-based) `HealthAccess` readers to
+    /// `async`, keeping `health` private; they are NOT cached/published (the tool fetches each
+    /// time). Any error / denial / no-data yields `[]` (the readers' no-op-on-deny guarantee).
+    func recentActiveEnergySamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentActiveEnergy(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentStepSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentSteps(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentRestingHeartRateSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentRestingHeartRate(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentSleepSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentSleep(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
     }
 
     // MARK: Coach (API key & model)
