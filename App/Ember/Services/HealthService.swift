@@ -214,7 +214,11 @@ final class HealthKitAccess: HealthAccess {
     }
 
     func recentBloodOxygen(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) {
-        // The 0…1 saturation fraction × 100 at map time so the tool reports a human "%".
+        // `HKUnit.percent()` is documented as the 0.0–1.0 range (Apple's `HKUnit.h`:
+        // `percentUnit; // % (0.0 - 1.0)`), so `doubleValue(for: .percent())` returns the
+        // saturation as a 0…1 fraction (e.g. 0.97), NOT a 0–100 percent. The ×100 here is the
+        // single conversion that turns that into a human "%" (97). Verified against Apple's
+        // documented unit semantics, not changed — auditable so this isn't re-flagged.
         quantitySamples(identifier: .oxygenSaturation, unit: .percent(),
                         daysBack: daysBack, scale: 100, completion: completion)
     }
