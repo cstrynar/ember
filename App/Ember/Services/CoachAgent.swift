@@ -39,7 +39,7 @@ final class CoachAgent {
 
             var results: [[String: Any]] = []
             for use in response.toolUses {
-                let output = tools.run(name: use.name, input: use.input)
+                let output = await tools.run(name: use.name, input: use.input)
                 results.append(["type": "tool_result", "tool_use_id": use.id, "content": output])
             }
             conversation.append(["role": "user", "content": results])
@@ -55,6 +55,7 @@ final class CoachAgent {
             "Help with nutrition (macros), workouts, hydration, and habits. Be concise and encouraging — never guilt-trippy.",
             "Use the tools to read the user's real data and to log foods, sets, and water, and to adjust reminders. Prefer search_food_database before logging a food by raw macros.",
             "Use web_search for current nutrition/fitness facts when useful, and mention sources briefly.",
+            "Use get_health_data to read the user's recent Apple Health activity, recovery, sleep, and weight when they ask about those.",
             "Units are metric (kg, cm, ml). Today's date key is \(app.dayKey).",
             "You give general fitness information, not medical advice; recommend a professional for medical concerns.",
             "After logging something, confirm what you logged in one short sentence.",
