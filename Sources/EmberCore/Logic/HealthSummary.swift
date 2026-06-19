@@ -30,6 +30,27 @@ public struct LatestAndAverage: Equatable {
     }
 }
 
+/// The min, max, and mean across a sample series, plus the sample count. All three values are
+/// `nil` and `count` is `0` for an empty input. Used for a range/average metric like active
+/// heart rate where the spread (not just the latest) is what the user asks about.
+public struct MinMaxAverage: Equatable {
+    /// The smallest sample value, or `nil` when empty.
+    public let min: Double?
+    /// The largest sample value, or `nil` when empty.
+    public let max: Double?
+    /// The mean of all sample values, or `nil` when empty.
+    public let average: Double?
+    /// The number of samples summarized.
+    public let count: Int
+
+    public init(min: Double?, max: Double?, average: Double?, count: Int) {
+        self.min = min
+        self.max = max
+        self.average = average
+        self.count = count
+    }
+}
+
 /// Pure rollup helpers over `HealthQuantitySample` arrays. Imports no HealthKit — the App
 /// layer maps `HKSample`s to the value types these operate on. Mirrors `HealthMerge` /
 /// `MacroMath`: a stateless `enum` namespace of deterministic functions.
@@ -64,5 +85,14 @@ public enum HealthSummary {
     public static func averageDailyTotal(_ totals: [DailyTotal]) -> Double? {
         guard !totals.isEmpty else { return nil }
         return totals.reduce(0) { $0 + $1.total } / Double(totals.count)
+    }
+
+    /// The smallest, largest, and mean value across the samples, plus the count. Empty →
+    /// `(nil, nil, nil, 0)`. Used for a range/average point metric like active heart rate.
+    public static func minMaxAverage(_ samples: [HealthQuantitySample]) -> MinMaxAverage {
+        guard !samples.isEmpty else { return MinMaxAverage(min: nil, max: nil, average: nil, count: 0) }
+        let values = samples.map(\.value)
+        let average = values.reduce(0, +) / Double(values.count)
+        return MinMaxAverage(min: values.min(), max: values.max(), average: average, count: values.count)
     }
 }
