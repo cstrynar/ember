@@ -200,6 +200,31 @@ cd App && xcodegen generate && open Ember.xcodeproj
   BMR/TDEE/goal untouched (Health never feeds macros); food/macros/hydration untouched; `WorkoutProgress` +
   its tests byte-for-byte unchanged (charts read only manual `[Workout]`); EmberCore imports no HealthKit;
   no new coach tool (that's Stage 3); no new network egress.
+- **Coach×Health Stage 1 (`get_health_data` tool) done** (`runs/20260619-0052-ember-coach-health`):
+  the Coach's first Apple Health read tool, over the SIX already-authorized streams (active energy,
+  steps, resting HR, sleep — four new readers — + weight + Apple Health workouts, already cached).
+  Pure EmberCore: `Sources/EmberCore/Models/HealthMetrics.swift` (`HealthQuantitySample { date;
+  value }` — `value` unit is metric-per-caller: kcal/steps/bpm/asleep-min) +
+  `Sources/EmberCore/Logic/HealthSummary.swift` (`enum HealthSummary` mirroring `HealthMerge`:
+  `dailyTotals(_:) -> [DailyTotal]` group-by-`DayKey` sum, newest-day-first; `latestAndAverage(_:)
+  -> LatestAndAverage`; `averageDailyTotal(_:) -> Double?`), unit-tested in
+  `Tests/EmberCoreTests/HealthSummaryTests.swift`. App: `HealthAccess` gains four completion
+  readers returning `[HealthQuantitySample]` (no HealthKit in signature) —
+  `recentActiveEnergy`/`recentSteps`/`recentRestingHeartRate`/`recentSleep`; `HealthKitAccess`
+  maps via a shared `quantitySamples(identifier:unit:)` (`HKSampleQuery`) + a sleep reader that
+  keeps only `allAsleepValues` segments as per-segment minutes; `#else`/`NoopHealthAccess` → `[]`.
+  `AppModel` adds four `@MainActor async recent*Samples(daysBack:)` wrappers (continuation-bridged,
+  `health` stays private, NO new caches / no `refreshHealthData` change) + exposes
+  `healthLookbackDays` (non-private static, the tool's clamp ceiling). `CoachTools` adds the
+  `get_health_data` definition (optional `days`, default 7, max 180), an `async run(name:input:)`
+  overload (handles `get_health_data`, delegates all else to the unchanged sync `run`), and a
+  `getHealthData` handler → compact JSON (workouts count+recent, weight latest+trend, active
+  energy today+avg, steps today+avg, resting HR latest+avg, sleep last-night+avg-per-night,
+  `window_days`); `!isHealthDataAvailable` OR all six empty → one `noHealthDataMessage` (no
+  fabricated numbers). `CoachAgent.run` now `await`s the dispatch; `systemPrompt` gains one
+  get_health_data hint line. `get_recent_workouts` (manual only) untouched; `readTypes`/
+  `project.yml`/`NSHealthShareUsageDescription` untouched (Stage 2). EmberCore imports no HealthKit;
+  no new network egress. Stage 2 = the six NEW streams + `readTypes` widening.
 - **Photo-macros UI Stage 1 (entry point + estimate seam) done** (`runs/20260618-1700-ember-photo-macros-ui`):
   wires the capture entry point + `AppModel.estimateMacros` async seam on top of the already-shipped
   plumbing (`AnthropicImage` encode/block, `AnthropicClient.sendVision`, pure `PhotoMacroParser`).

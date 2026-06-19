@@ -33,6 +33,24 @@ protocol HealthAccess {
     /// types so no HealthKit type leaks. `completion` runs on the main actor; any error,
     /// denial, no-data, or unavailability yields `[]`.
     func recentWorkouts(daysBack: Int, completion: @escaping ([HealthWorkout]) -> Void)
+
+    /// Reads recent active-energy samples (last `daysBack` days), each `value` in kilocalories.
+    /// Mapped to EmberCore value types. `completion` on the main actor; error/denial/no-data → `[]`.
+    func recentActiveEnergy(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void)
+
+    /// Reads recent step-count samples (last `daysBack` days), each `value` a step count.
+    /// Mapped to EmberCore value types. `completion` on the main actor; error/denial/no-data → `[]`.
+    func recentSteps(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void)
+
+    /// Reads recent resting-heart-rate samples (last `daysBack` days), each `value` in bpm.
+    /// Mapped to EmberCore value types. `completion` on the main actor; error/denial/no-data → `[]`.
+    func recentRestingHeartRate(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void)
+
+    /// Reads recent sleep samples (last `daysBack` days). Only "asleep" segments are kept, each
+    /// mapped to a sample whose `value` is the segment's duration in minutes, keyed by its start
+    /// date. EmberCore rolls these into per-night totals. `completion` on the main actor;
+    /// error/denial/no-data → `[]`.
+    func recentSleep(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void)
 }
 
 /// The real HealthKit-backed implementation — the only file in the repo that imports HealthKit.
@@ -104,6 +122,62 @@ final class HealthKitAccess: HealthAccess {
         store.execute(query)
     }
 
+    func recentActiveEnergy(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) {
+        quantitySamples(identifier: .activeEnergyBurned, unit: .kilocalorie(),
+                        daysBack: daysBack, completion: completion)
+    }
+
+    func recentSteps(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) {
+        quantitySamples(identifier: .stepCount, unit: .count(),
+                        daysBack: daysBack, completion: completion)
+    }
+
+    func recentRestingHeartRate(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) {
+        quantitySamples(identifier: .restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()),
+                        daysBack: daysBack, completion: completion)
+    }
+
+    func recentSleep(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) {
+        guard isHealthDataAvailable,
+              let type = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
+            completion([]); return
+        }
+        let predicate = Self.recentPredicate(daysBack: daysBack)
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        let query = HKSampleQuery(sampleType: type, predicate: predicate,
+                                  limit: HKObjectQueryNoLimit, sortDescriptors: [sort]) { _, samples, _ in
+            let asleep = HKCategoryValueSleepAnalysis.allAsleepValues.map(\.rawValue)
+            let mapped: [HealthQuantitySample] = (samples as? [HKCategorySample] ?? [])
+                .filter { asleep.contains($0.value) }
+                .map { HealthQuantitySample(date: $0.startDate,
+                                            value: $0.endDate.timeIntervalSince($0.startDate) / 60) }
+            Task { @MainActor in completion(mapped) }
+        }
+        store.execute(query)
+    }
+
+    /// Shared `HKQuantitySample` reader: maps each sample's `quantity` (in `unit`) to a
+    /// `HealthQuantitySample` keyed by its start date, newest-first. Any error/empty/nil/
+    /// unavailable → `[]` on the main actor (mirrors `recentBodyMass`).
+    private func quantitySamples(identifier: HKQuantityTypeIdentifier, unit: HKUnit,
+                                 daysBack: Int,
+                                 completion: @escaping ([HealthQuantitySample]) -> Void) {
+        guard isHealthDataAvailable,
+              let type = HKObjectType.quantityType(forIdentifier: identifier) else {
+            completion([]); return
+        }
+        let predicate = Self.recentPredicate(daysBack: daysBack)
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        let query = HKSampleQuery(sampleType: type, predicate: predicate,
+                                  limit: HKObjectQueryNoLimit, sortDescriptors: [sort]) { _, samples, _ in
+            let mapped: [HealthQuantitySample] = (samples as? [HKQuantitySample] ?? []).map {
+                HealthQuantitySample(date: $0.startDate, value: $0.quantity.doubleValue(for: unit))
+            }
+            Task { @MainActor in completion(mapped) }
+        }
+        store.execute(query)
+    }
+
     /// A predicate for samples started within the last `daysBack` days (open-ended at the top).
     private static func recentPredicate(daysBack: Int) -> NSPredicate {
         let start = Calendar.current.date(byAdding: .day, value: -max(0, daysBack), to: Date())
@@ -135,6 +209,10 @@ final class HealthKitAccess: HealthAccess {
     func requestAuthorization(completion: @escaping (Bool) -> Void) { completion(false) }
     func recentBodyMass(daysBack: Int, completion: @escaping ([HealthWeightSample]) -> Void) { completion([]) }
     func recentWorkouts(daysBack: Int, completion: @escaping ([HealthWorkout]) -> Void) { completion([]) }
+    func recentActiveEnergy(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentSteps(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentRestingHeartRate(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentSleep(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
     #endif
 }
 
@@ -147,4 +225,8 @@ final class NoopHealthAccess: HealthAccess {
     func requestAuthorization(completion: @escaping (Bool) -> Void) { completion(false) }
     func recentBodyMass(daysBack: Int, completion: @escaping ([HealthWeightSample]) -> Void) { completion([]) }
     func recentWorkouts(daysBack: Int, completion: @escaping ([HealthWorkout]) -> Void) { completion([]) }
+    func recentActiveEnergy(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentSteps(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentRestingHeartRate(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
+    func recentSleep(daysBack: Int, completion: @escaping ([HealthQuantitySample]) -> Void) { completion([]) }
 }
