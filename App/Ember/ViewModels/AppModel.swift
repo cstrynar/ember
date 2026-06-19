@@ -268,10 +268,12 @@ final class AppModel: ObservableObject {
         HealthMerge.mergedWorkouts(manual: allWorkouts, health: healthWorkouts)
     }
 
-    /// On-demand reads of the four activity/recovery/sleep streams for the `get_health_data`
-    /// coach tool. These bridge the injected (completion-based) `HealthAccess` readers to
-    /// `async`, keeping `health` private; they are NOT cached/published (the tool fetches each
-    /// time). Any error / denial / no-data yields `[]` (the readers' no-op-on-deny guarantee).
+    /// On-demand reads of the activity/recovery/sleep/mindfulness streams for the
+    /// `get_health_data` coach tool (active energy, steps, resting HR, sleep, distance, HRV,
+    /// VO₂max, heart rate, blood oxygen, mindful minutes). These bridge the injected
+    /// (completion-based) `HealthAccess` readers to `async`, keeping `health` private; they are
+    /// NOT cached/published (the tool fetches each time). Any error / denial / no-data yields
+    /// `[]` (the readers' no-op-on-deny guarantee).
     func recentActiveEnergySamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
         await withCheckedContinuation { cont in
             health.recentActiveEnergy(daysBack: daysBack) { cont.resume(returning: $0) }
@@ -293,6 +295,42 @@ final class AppModel: ObservableObject {
     func recentSleepSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
         await withCheckedContinuation { cont in
             health.recentSleep(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentDistanceSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentDistance(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentHRVSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentHRV(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentVO2MaxSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentVO2Max(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentHeartRateSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentHeartRate(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentBloodOxygenSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentBloodOxygen(daysBack: daysBack) { cont.resume(returning: $0) }
+        }
+    }
+
+    func recentMindfulMinutesSamples(daysBack: Int = healthLookbackDays) async -> [HealthQuantitySample] {
+        await withCheckedContinuation { cont in
+            health.recentMindfulMinutes(daysBack: daysBack) { cont.resume(returning: $0) }
         }
     }
 
