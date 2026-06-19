@@ -252,8 +252,13 @@ cd App && xcodegen generate && open Ember.xcodeproj
   tool `description` broadened. `CoachAgent.systemPrompt` get_health_data hint line broadened (names
   HRV/VO₂max/SpO₂/distance/mindfulness). `App/project.yml`: `NSHealthShareUsageDescription` rewritten
   to honestly cover the twelve-type read set (read-only, deny-safe, never writes);
-  `NSHealthUpdateUsageDescription` + its comment DELETED (a read-only `requestAuthorization(toShare:[],
-  read:)` never needs the update string — the in-repo "Apple requires it" comment was wrong);
+  `NSHealthUpdateUsageDescription` was DELETED here on the theory that a read-only
+  `requestAuthorization(toShare:[], read:)` never needs the update string — **this was WRONG and was
+  reverted (commit b7648a8):** App Store *upload validation* statically flags the
+  `com.apple.developer.healthkit` entitlement as referencing write APIs regardless of whether the app
+  calls them, so the update string is REQUIRED to pass validation even for a read-only client (deleting
+  it broke the 1.1/7 TestFlight upload with "Missing purpose string in Info.plist"). The original
+  in-repo "Apple requires it" comment was correct. The string now states Ember never writes.
   `com.apple.developer.healthkit` entitlement KEPT (it is the read capability). `get_recent_workouts`,
   the `days` param/default/clamp, `MacroMath`, manual logging, and `WorkoutProgress` untouched;
   no NEW coach tool; EmberCore imports no HealthKit; no new network egress.
