@@ -24,6 +24,8 @@
 	<string>Ember uses the camera so you can photograph a meal and estimate its macros. This is optional — you can pick an existing photo instead, and Ember never uploads photos anywhere except to estimate macros via the Anthropic API with your own key.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Ember can read your workouts, body weight, steps, distance, active energy, heart rate, heart-rate variability, VO₂max, blood oxygen, sleep, and mindful minutes from Apple Health so your coach and progress reflect real data. Reading is optional — deny it and Ember works fully on data you enter manually. Ember only reads and never writes to Health.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Ember does not write to Apple Health — it only reads your data. This permission is never requested or used.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Ember sends optional reminders for meals and hydration at times you choose. The app is fully usable without them.</string>
 	<key>UIApplicationSceneManifest</key>
