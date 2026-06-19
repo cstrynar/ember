@@ -97,7 +97,11 @@ final class CoachTools {
     func run(name: String, input: [String: Any]) async -> String {
         switch name {
         case "get_health_data": return await getHealthData(days: intVal(input, "days") ?? 7)
-        default:                return run(name: name, input: input)
+        default:
+            // Disambiguate to the synchronous overload — in this async context bare
+            // `run(name:input:)` would resolve to this async method itself.
+            let sync: (String, [String: Any]) -> String = run
+            return sync(name, input)
         }
     }
 
