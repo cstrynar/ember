@@ -27,7 +27,7 @@ final class CoachTools {
                  properties: ["limit": ["type": "integer", "description": "How many recent workouts (default 8)."]],
                  required: []),
             tool("get_health_data",
-                 "Summarize the user's recent Apple Health — workouts, body weight + trend, daily active energy, steps, resting heart rate, and sleep. Optional `days` (default 7). Returns a compact summary (counts / daily totals / averages / latest), never raw per-sample arrays.",
+                 "Summarize the user's recent Apple Health — workouts, body weight + trend, daily active energy, steps, distance, resting heart rate, active heart-rate range, HRV, VO₂max, blood oxygen, sleep, and mindful minutes. Optional `days` (default 7). Returns a compact summary (counts / daily totals / averages / latest / min-max-avg), never raw per-sample arrays.",
                  properties: ["days": ["type": "integer", "description": "Lookback window in days (default 7, max 180)."]],
                  required: []),
             tool("search_food_database",
@@ -171,16 +171,24 @@ final class CoachTools {
 
         let window = min(max(1, days), AppModel.healthLookbackDays)
 
-        // Four new streams: fetched on demand. Weight + Apple-Health workouts: existing caches.
+        // On-demand streams. Weight + Apple-Health workouts: existing caches.
         let energy = await app.recentActiveEnergySamples(daysBack: window)
         let steps = await app.recentStepSamples(daysBack: window)
         let restingHR = await app.recentRestingHeartRateSamples(daysBack: window)
         let sleep = await app.recentSleepSamples(daysBack: window)
+        let distance = await app.recentDistanceSamples(daysBack: window)
+        let hrv = await app.recentHRVSamples(daysBack: window)
+        let vo2max = await app.recentVO2MaxSamples(daysBack: window)
+        let heartRate = await app.recentHeartRateSamples(daysBack: window)
+        let bloodOxygen = await app.recentBloodOxygenSamples(daysBack: window)
+        let mindful = await app.recentMindfulMinutesSamples(daysBack: window)
         let weights = app.healthWeights
         let workouts = app.healthWorkouts
 
         // Everything empty → same clear not-connected message (no fabricated numbers).
         if energy.isEmpty && steps.isEmpty && restingHR.isEmpty && sleep.isEmpty
+            && distance.isEmpty && hrv.isEmpty && vo2max.isEmpty && heartRate.isEmpty
+            && bloodOxygen.isEmpty && mindful.isEmpty
             && weights.isEmpty && workouts.isEmpty {
             return noHealthDataMessage
         }
@@ -245,6 +253,60 @@ final class CoachTools {
                                            "nights": sleepTotals.count]
             if let lastNight = sleepTotals.first { sleepOut["last_night_min"] = round(lastNight.total) }
             d["sleep"] = sleepOut
+        }
+
+        // Distance: today's total + average per day (km, one decimal).
+        let distanceTotals = HealthSummary.dailyTotals(distance)
+        if !distanceTotals.isEmpty {
+            var dist: [String: Any] = ["avg_per_day_km": round1(HealthSummary.averageDailyTotal(distanceTotals) ?? 0),
+                                       "days": distanceTotals.count]
+            if let today = distanceTotals.first(where: { $0.dayKey == app.dayKey }) {
+                dist["today_km"] = round1(today.total)
+            }
+            d["distance"] = dist
+        }
+
+        // HRV: latest + average (ms, point metric).
+        let hrvStats = HealthSummary.latestAndAverage(hrv)
+        if hrvStats.count > 0 {
+            d["hrv"] = ["latest_ms": round(hrvStats.latest ?? 0),
+                        "avg_ms": round(hrvStats.average ?? 0),
+                        "count": hrvStats.count]
+        }
+
+        // VO₂max: latest (mL/kg/min, one decimal).
+        let vo2Stats = HealthSummary.latestAndAverage(vo2max)
+        if vo2Stats.count > 0 {
+            d["vo2max"] = ["latest": round1(vo2Stats.latest ?? 0),
+                           "count": vo2Stats.count]
+        }
+
+        // Active heart rate: range (min/max) + average (bpm).
+        let hrRange = HealthSummary.minMaxAverage(heartRate)
+        if hrRange.count > 0 {
+            d["active_heart_rate"] = ["min_bpm": round(hrRange.min ?? 0),
+                                      "max_bpm": round(hrRange.max ?? 0),
+                                      "avg_bpm": round(hrRange.average ?? 0),
+                                      "count": hrRange.count]
+        }
+
+        // Blood oxygen: latest + average (%, one decimal).
+        let spo2 = HealthSummary.latestAndAverage(bloodOxygen)
+        if spo2.count > 0 {
+            d["blood_oxygen"] = ["latest_pct": round1(spo2.latest ?? 0),
+                                 "avg_pct": round1(spo2.average ?? 0),
+                                 "count": spo2.count]
+        }
+
+        // Mindful minutes: today's total + average per day.
+        let mindfulTotals = HealthSummary.dailyTotals(mindful)
+        if !mindfulTotals.isEmpty {
+            var mind: [String: Any] = ["avg_per_day_min": round(HealthSummary.averageDailyTotal(mindfulTotals) ?? 0),
+                                       "days": mindfulTotals.count]
+            if let today = mindfulTotals.first(where: { $0.dayKey == app.dayKey }) {
+                mind["today_min"] = round(today.total)
+            }
+            d["mindful_minutes"] = mind
         }
 
         return json(d)
@@ -368,6 +430,9 @@ final class CoachTools {
     }
 
     private func round(_ v: Double) -> Int { Int(v.rounded()) }
+
+    /// One-decimal rounding for metrics that read naturally with a tenth (km, VO₂max, SpO₂ %).
+    private func round1(_ v: Double) -> Double { (v * 10).rounded() / 10 }
 
     private func json(_ object: Any) -> String {
         guard JSONSerialization.isValidJSONObject(object),

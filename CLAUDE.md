@@ -224,7 +224,39 @@ cd App && xcodegen generate && open Ember.xcodeproj
   fabricated numbers). `CoachAgent.run` now `await`s the dispatch; `systemPrompt` gains one
   get_health_data hint line. `get_recent_workouts` (manual only) untouched; `readTypes`/
   `project.yml`/`NSHealthShareUsageDescription` untouched (Stage 2). EmberCore imports no HealthKit;
-  no new network egress. Stage 2 = the six NEW streams + `readTypes` widening.
+  no new network egress. Stage 2 (the six NEW streams + `readTypes` widening) is now done, below.
+- **Coach×Health Stage 2 (six NEW Health streams + `readTypes` widening) done** (`runs/20260619-0052-ember-coach-health`):
+  widens the Stage-1 `get_health_data` tool to cover SIX more streams — walking/running
+  **distance**, **HRV** (SDNN), **VO₂max**, **active heart rate**, **blood oxygen** (SpO₂), and
+  **mindful minutes** — and corrects the usage descriptions. Pure EmberCore: NO new model type
+  (`HealthQuantitySample` reused for all five new quantity streams); one new helper in the existing
+  `Sources/EmberCore/Logic/HealthSummary.swift` — `MinMaxAverage { min?; max?; average?; count }` +
+  `HealthSummary.minMaxAverage(_:)` (for the active-HR range; empty → all-nil/0). Distance + mindful
+  reuse `dailyTotals`/`averageDailyTotal`; HRV/VO₂max/SpO₂ reuse `latestAndAverage`. New cases in
+  `Tests/EmberCoreTests/HealthSummaryTests.swift` (minMaxAverage multi/empty/single + distance- and
+  mindful-style daily rollups + SpO₂-framed latest+avg). App: `HealthAccess` gains six completion
+  readers returning `[HealthQuantitySample]` (no HealthKit in signature) — `recentDistance`/
+  `recentHRV`/`recentVO2Max`/`recentHeartRate`/`recentBloodOxygen`/`recentMindfulMinutes`;
+  `HealthKitAccess` maps five via the shared `quantitySamples(identifier:unit:scale:)` (NEW `scale:`
+  default-1 param: distance meters→km via `1/1000`, SpO₂ 0…1 fraction→% via `100`, both at map time
+  so EmberCore stays unit-agnostic) + mindful via a category reader modeled on `recentSleep` but with
+  NO asleep filter (every session counts); `#else`/`NoopHealthAccess` → `[]`. `readTypes` now holds
+  all TWELVE types (original six + distanceWalkingRunning, heartRateVariabilitySDNN, vo2Max, heartRate,
+  oxygenSaturation, mindfulSession), so the re-grant sheet lists twelve. `AppModel` adds six matching
+  `@MainActor async recent*Samples(daysBack:)` wrappers (continuation-bridged, `health` stays private,
+  STILL no caches / no `refreshHealthData` change). `CoachTools.getHealthData` fetches the six new
+  streams on demand, extends the all-empty guard to twelve arrays (→ one `noHealthDataMessage`), and
+  appends six per-stream-gated JSON sections (`distance` today/avg km, `hrv` latest/avg ms, `vo2max`
+  latest, `active_heart_rate` min/max/avg bpm, `blood_oxygen` latest/avg %, `mindful_minutes` today/
+  avg min); new `round1` (1-decimal `Double`) for km/VO₂max/SpO₂, existing `round` (Int) for the rest;
+  tool `description` broadened. `CoachAgent.systemPrompt` get_health_data hint line broadened (names
+  HRV/VO₂max/SpO₂/distance/mindfulness). `App/project.yml`: `NSHealthShareUsageDescription` rewritten
+  to honestly cover the twelve-type read set (read-only, deny-safe, never writes);
+  `NSHealthUpdateUsageDescription` + its comment DELETED (a read-only `requestAuthorization(toShare:[],
+  read:)` never needs the update string — the in-repo "Apple requires it" comment was wrong);
+  `com.apple.developer.healthkit` entitlement KEPT (it is the read capability). `get_recent_workouts`,
+  the `days` param/default/clamp, `MacroMath`, manual logging, and `WorkoutProgress` untouched;
+  no NEW coach tool; EmberCore imports no HealthKit; no new network egress.
 - **Photo-macros UI Stage 1 (entry point + estimate seam) done** (`runs/20260618-1700-ember-photo-macros-ui`):
   wires the capture entry point + `AppModel.estimateMacros` async seam on top of the already-shipped
   plumbing (`AnthropicImage` encode/block, `AnthropicClient.sendVision`, pure `PhotoMacroParser`).
