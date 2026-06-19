@@ -9,6 +9,12 @@ final class CoachTools {
 
     init(app: AppModel) { self.app = app }
 
+    /// Returned by `get_health_data` when Health is unavailable / not connected, or when it is
+    /// available but every stream is empty. No fabricated numbers in either case.
+    private let noHealthDataMessage =
+        "No Apple Health data available. The user may not have connected Apple Health " +
+        "(Settings → Apple Health → Connect) or has no recent recorded activity, weight, or sleep."
+
     // MARK: Tool definitions (client tools + the server-side web_search tool)
 
     func definitions() -> [[String: Any]] {
@@ -19,6 +25,10 @@ final class CoachTools {
             tool("get_recent_workouts",
                  "Read recent workouts for progress questions. Returns per-exercise sets, best estimated 1RM, and volume.",
                  properties: ["limit": ["type": "integer", "description": "How many recent workouts (default 8)."]],
+                 required: []),
+            tool("get_health_data",
+                 "Summarize the user's recent Apple Health — workouts, body weight + trend, daily active energy, steps, resting heart rate, and sleep. Optional `days` (default 7). Returns a compact summary (counts / daily totals / averages / latest), never raw per-sample arrays.",
+                 properties: ["days": ["type": "integer", "description": "Lookback window in days (default 7, max 180)."]],
                  required: []),
             tool("search_food_database",
                  "Search the local food database by name. Returns matches with food_id and per-serving macros.",
@@ -81,6 +91,15 @@ final class CoachTools {
     }
 
     // MARK: Dispatch
+
+    /// Async dispatch. Only `get_health_data` needs awaiting (its Health reads are async);
+    /// every other tool delegates to the synchronous `run`, unchanged.
+    func run(name: String, input: [String: Any]) async -> String {
+        switch name {
+        case "get_health_data": return await getHealthData(days: intVal(input, "days") ?? 7)
+        default:                return run(name: name, input: input)
+        }
+    }
 
     func run(name: String, input: [String: Any]) -> String {
         switch name {
@@ -145,6 +164,99 @@ final class CoachTools {
                     "exercises": exercises]
         }
         return json(arr)
+    }
+
+    private func getHealthData(days: Int) async -> String {
+        guard app.isHealthDataAvailable else { return noHealthDataMessage }
+
+        let window = min(max(1, days), AppModel.healthLookbackDays)
+
+        // Four new streams: fetched on demand. Weight + Apple-Health workouts: existing caches.
+        let energy = await app.recentActiveEnergySamples(daysBack: window)
+        let steps = await app.recentStepSamples(daysBack: window)
+        let restingHR = await app.recentRestingHeartRateSamples(daysBack: window)
+        let sleep = await app.recentSleepSamples(daysBack: window)
+        let weights = app.healthWeights
+        let workouts = app.healthWorkouts
+
+        // Everything empty → same clear not-connected message (no fabricated numbers).
+        if energy.isEmpty && steps.isEmpty && restingHR.isEmpty && sleep.isEmpty
+            && weights.isEmpty && workouts.isEmpty {
+            return noHealthDataMessage
+        }
+
+        var d: [String: Any] = ["window_days": window]
+
+        // Workouts (count + a few most-recent summaries).
+        let recentWorkouts = workouts.sorted { $0.date > $1.date }
+        d["workouts"] = [
+            "count": recentWorkouts.count,
+            "recent": recentWorkouts.prefix(5).map { w -> [String: Any] in
+                var row: [String: Any] = ["kind": w.kind, "duration_min": round(w.durationMin), "day": w.dayKey]
+                if let kcal = w.activeEnergyKcal { row["active_energy_kcal"] = round(kcal) }
+                return row
+            },
+        ]
+
+        // Weight: latest (newest by date) + a one-word trend vs the oldest sample in the window.
+        if let latest = weights.max(by: { $0.date < $1.date }) {
+            let oldest = weights.min(by: { $0.date < $1.date })
+            d["weight"] = [
+                "latest_kg": round(latest.weightKg),
+                "trend": weightTrend(latest: latest.weightKg, previous: oldest?.weightKg),
+                "sample_count": weights.count,
+            ]
+        }
+
+        // Active energy: today's total + average per day across the window.
+        let energyTotals = HealthSummary.dailyTotals(energy)
+        if !energyTotals.isEmpty {
+            var active: [String: Any] = ["avg_per_day_kcal": round(HealthSummary.averageDailyTotal(energyTotals) ?? 0),
+                                         "days": energyTotals.count]
+            if let today = energyTotals.first(where: { $0.dayKey == app.dayKey }) {
+                active["today_kcal"] = round(today.total)
+            }
+            d["active_energy"] = active
+        }
+
+        // Steps: today's total + average per day.
+        let stepTotals = HealthSummary.dailyTotals(steps)
+        if !stepTotals.isEmpty {
+            var stepsOut: [String: Any] = ["avg_per_day": round(HealthSummary.averageDailyTotal(stepTotals) ?? 0),
+                                           "days": stepTotals.count]
+            if let today = stepTotals.first(where: { $0.dayKey == app.dayKey }) {
+                stepsOut["today"] = round(today.total)
+            }
+            d["steps"] = stepsOut
+        }
+
+        // Resting HR: latest + average (point metric).
+        let hr = HealthSummary.latestAndAverage(restingHR)
+        if hr.count > 0 {
+            d["resting_hr"] = ["latest_bpm": round(hr.latest ?? 0),
+                               "avg_bpm": round(hr.average ?? 0),
+                               "count": hr.count]
+        }
+
+        // Sleep: last night (most-recent night total) + average per night.
+        let sleepTotals = HealthSummary.dailyTotals(sleep)
+        if !sleepTotals.isEmpty {
+            var sleepOut: [String: Any] = ["avg_per_night_min": round(HealthSummary.averageDailyTotal(sleepTotals) ?? 0),
+                                           "nights": sleepTotals.count]
+            if let lastNight = sleepTotals.first { sleepOut["last_night_min"] = round(lastNight.total) }
+            d["sleep"] = sleepOut
+        }
+
+        return json(d)
+    }
+
+    /// A one-word weight trend: comparing the latest sample to the oldest in the window.
+    private func weightTrend(latest: Double, previous: Double?) -> String {
+        guard let previous else { return "unknown" }
+        let delta = latest - previous
+        if delta <= -0.5 { return "down" }
+        if delta >= 0.5 { return "up" }
+        return "steady"
     }
 
     private func searchFood(_ query: String) -> String {
